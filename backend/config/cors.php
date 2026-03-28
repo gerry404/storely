@@ -16,7 +16,7 @@ return [
         env('FRONTEND_URL', 'http://localhost:5173'),
         'https://storely.app',
         'https://www.storely.app',
-        'https://storely-gerry404.vercel.app',
+        'https://storely-one.vercel.app',
         'https://storely-*.vercel.app',
     ],
 
