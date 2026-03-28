@@ -21,7 +21,7 @@ const socials = [
             <span class="font-display text-lg font-bold" style="color: var(--logo-text)">Storely</span>
           </router-link>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted)">
-            La vitrine digitale pour les commerçants africains. Créez votre page en 10 minutes.
+            La vitrine digitale pour les commerçants ambitieux. Créez votre page en 10 minutes.
           </p>
 
           <!-- Social share -->
