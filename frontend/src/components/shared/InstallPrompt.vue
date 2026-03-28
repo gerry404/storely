@@ -7,11 +7,13 @@ const { isStandalone, isOnline, isIOS, canInstall, updateAvailable, install, app
 const showInstall = ref(false)
 const showIOSGuide = ref(false)
 const dismissed = ref(false)
+const isMobile = ref(false)
 
 onMounted(() => {
-  // Show install prompt after 3s (only if not already installed)
+  isMobile.value = window.innerWidth < 768
+  // Show install prompt after 3s (only on desktop, not already installed)
   setTimeout(() => {
-    if (!isStandalone.value && !localStorage.getItem('storely-install-dismissed')) {
+    if (!isStandalone.value && !isMobile.value && !localStorage.getItem('storely-install-dismissed')) {
       showInstall.value = true
     }
   }, 3000)
