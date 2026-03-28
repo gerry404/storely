@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useAuth } from '../../composables/useAuth'
-import { shopLogoUrl } from '../../composables/useStorage'
+import { shopLogoUrl, apiUrl } from '../../composables/useStorage'
 import { useCategories } from '../../composables/useCategories'
 import { usePlan } from '../../composables/usePlan'
 import { getCitiesByCountry } from '../../data/cities-by-country'
@@ -205,7 +205,7 @@ const uploadLogo = async (event) => {
     const fd = new FormData()
     fd.append('logo', file)
     const token = localStorage.getItem('storely-token')
-    const res = await fetch('/api/shop/logo', {
+    const res = await fetch(apiUrl('/api/shop/logo'), {
       method: 'POST',
       headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       body: fd,

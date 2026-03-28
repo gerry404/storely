@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+export const API_BASE = import.meta.env.VITE_API_URL || ''
+
 const user = ref(JSON.parse(localStorage.getItem('storely-user') || 'null'))
 const shop = ref(JSON.parse(localStorage.getItem('storely-shop') || 'null'))
 const token = ref(localStorage.getItem('storely-token') || null)
@@ -45,7 +47,8 @@ export function useAuth() {
       ...(token.value ? { 'Authorization': `Bearer ${token.value}` } : {}),
       ...options.headers,
     }
-    const res = await fetch(url, { ...options, headers })
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`
+    const res = await fetch(fullUrl, { ...options, headers })
     const data = await res.json()
     if (!res.ok) {
       const error = new Error(data.message || 'Une erreur est survenue')

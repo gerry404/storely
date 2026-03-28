@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { productImageUrl, shopLogoUrl, storageUrl } from '../../composables/useStorage'
+import { productImageUrl, shopLogoUrl, storageUrl, apiUrl } from '../../composables/useStorage'
 
 const route = useRoute()
 const router = useRouter()
@@ -71,7 +71,7 @@ const accent = computed(() => {
 
 onMounted(async () => {
   try {
-    const res = await fetch(`/api/shops/${shopSlug.value}/products/${productSlug.value}`)
+    const res = await fetch(apiUrl(`/api/shops/${shopSlug.value}/products/${productSlug.value}`))
     if (!res.ok) throw new Error('Not found')
     const data = await res.json()
     product.value = data.product
@@ -95,7 +95,7 @@ const submitOrder = async () => {
   ordering.value = true
   orderError.value = ''
   try {
-    const res = await fetch('/api/orders', {
+    const res = await fetch(apiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
@@ -114,7 +114,7 @@ const submitOrder = async () => {
       showPaymentModal.value = true
       paymentStep.value = 'processing'
 
-      const payRes = await fetch('/api/payments/order', {
+      const payRes = await fetch(apiUrl('/api/payments/order'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ order_id: data.order.id }),
@@ -144,7 +144,7 @@ const submitOrder = async () => {
           callback: async (response) => {
             paymentStep.value = 'processing'
             try {
-              const verifyRes = await fetch('/api/payments/verify', {
+              const verifyRes = await fetch(apiUrl('/api/payments/verify'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
@@ -197,7 +197,7 @@ const submitChat = async () => {
   chatSending.value = true
   chatError.value = ''
   try {
-    const res = await fetch(`/api/shops/${shopSlug.value}/chat`, {
+    const res = await fetch(apiUrl(`/api/shops/${shopSlug.value}/chat`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({

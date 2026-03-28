@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuth } from '../../composables/useAuth'
+import { apiUrl } from '../../composables/useStorage'
 
 const { api } = useAuth()
 
@@ -214,7 +215,7 @@ const uploadBanner = async (promoId) => {
   const formData = new FormData()
   formData.append('banner', bannerFile.value)
   const token = localStorage.getItem('storely-token')
-  const res = await fetch(`/api/promotions/${promoId}/banner`, {
+  const res = await fetch(apiUrl(`/api/promotions/${promoId}/banner`), {
     method: 'POST',
     headers: {
       Accept: 'application/json',

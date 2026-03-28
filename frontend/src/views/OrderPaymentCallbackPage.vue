@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { apiUrl } from '../composables/useStorage'
 
 const route = useRoute()
 const status = ref('verifying') // verifying, success, error
@@ -17,7 +18,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await fetch('/api/payments/verify', {
+    const res = await fetch(apiUrl('/api/payments/verify'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ tx_ref: txRef, transaction_id: transactionId }),

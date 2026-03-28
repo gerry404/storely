@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { productImageUrl, shopLogoUrl, shopBannerUrl, storageUrl } from '../../composables/useStorage'
+import { productImageUrl, shopLogoUrl, shopBannerUrl, storageUrl, apiUrl } from '../../composables/useStorage'
 
 const route = useRoute()
 const router = useRouter()
@@ -141,7 +141,7 @@ async function fetchShop() {
   loading.value = true
   error.value = false
   try {
-    const res = await fetch(`/api/shops/${slug.value}`)
+    const res = await fetch(apiUrl(`/api/shops/${slug.value}`))
     if (!res.ok) throw new Error('Not found')
     const data = await res.json()
     const sd = data.shop || data
@@ -239,7 +239,7 @@ const submitOrder = async () => {
   if (!orderForm.value.name || !orderForm.value.phone) { orderError.value = 'Remplissez votre nom et téléphone.'; return }
   orderSubmitting.value = true; orderError.value = ''
   try {
-    const res = await fetch('/api/orders', {
+    const res = await fetch(apiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ product_id: orderProduct.value.id, customer_name: orderForm.value.name, customer_phone: orderForm.value.phone, quantity: orderQty.value, note: orderForm.value.note || undefined, payment_method: orderPaymentMethod.value }),
@@ -252,7 +252,7 @@ const submitOrder = async () => {
       showPaymentModal.value = true
       paymentStep.value = 'processing'
 
-      const payRes = await fetch('/api/payments/order', {
+      const payRes = await fetch(apiUrl('/api/payments/order'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ order_id: data.order.id }),
@@ -281,7 +281,7 @@ const submitOrder = async () => {
           callback: async (response) => {
             paymentStep.value = 'processing'
             try {
-              const vRes = await fetch('/api/payments/verify', {
+              const vRes = await fetch(apiUrl('/api/payments/verify'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify({ transaction_id: String(response.transaction_id), tx_ref: response.tx_ref }),
@@ -342,7 +342,7 @@ const submitChat = async () => {
   }
   chatSending.value = true; chatError.value = ''
   try {
-    const res = await fetch(`/api/shops/${slug.value}/chat`, {
+    const res = await fetch(apiUrl(`/api/shops/${slug.value}/chat`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ ...chatForm.value, product_id: chatProduct.value?.id || undefined }),

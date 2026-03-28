@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { apiUrl } from '../composables/useStorage'
 
 const router = useRouter()
 
@@ -25,7 +26,7 @@ const fetchShops = async (page = 1) => {
     if (selectedCategory.value) params.set('category', selectedCategory.value)
     if (selectedCity.value) params.set('city', selectedCity.value)
 
-    const res = await fetch(`/api/marketplace?${params}`)
+    const res = await fetch(apiUrl(`/api/marketplace?${params}`))
     const data = await res.json()
     shops.value = data.data || []
     currentPage.value = data.current_page || 1
@@ -39,9 +40,9 @@ const fetchShops = async (page = 1) => {
 const fetchMeta = async () => {
   try {
     const [featuredRes, citiesRes, categoriesRes] = await Promise.all([
-      fetch('/api/marketplace/featured'),
-      fetch('/api/marketplace/cities'),
-      fetch('/api/marketplace/categories'),
+      fetch(apiUrl('/api/marketplace/featured')),
+      fetch(apiUrl('/api/marketplace/cities')),
+      fetch(apiUrl('/api/marketplace/categories')),
     ])
     featured.value = await featuredRes.json()
     cities.value = await citiesRes.json()

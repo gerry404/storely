@@ -1,3 +1,16 @@
+import { API_BASE } from './useAuth'
+
+/**
+ * Build a full API URL from a relative path.
+ * In dev: /api/... (proxied by Vite)
+ * In prod: https://storely-api.onrender.com/api/...
+ */
+export function apiUrl(path) {
+  if (!path) return path
+  if (path.startsWith('http')) return path
+  return `${API_BASE}${path}`
+}
+
 /**
  * Converts a relative storage path from the API to a full URL.
  * API returns paths like "products/file.jpg" or "shops/logos/file.jpg"
@@ -7,10 +20,10 @@ export function storageUrl(path) {
   if (!path) return null
   // Already a full URL
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path
-  // Already prefixed
-  if (path.startsWith('/storage/')) return path
+  // Already prefixed with /storage/
+  if (path.startsWith('/storage/')) return `${API_BASE}${path}`
   // Relative path from API
-  return `/storage/${path}`
+  return `${API_BASE}/storage/${path}`
 }
 
 /**
