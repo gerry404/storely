@@ -110,12 +110,8 @@ const dismissIOSGuide = () => { showIOSGuide.value = false }
       <div class="relative p-5">
         <div class="flex items-start gap-4">
           <!-- App icon -->
-          <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 shadow-lg" style="background: linear-gradient(135deg, #FF6B2C, #FFAA33)">
-            <div class="w-full h-full flex items-center justify-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/>
-              </svg>
-            </div>
+          <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 shadow-lg bg-[#0A0A0F]">
+            <img src="/logo.png" alt="Storely" class="w-full h-full object-contain p-1" />
           </div>
 
           <div class="flex-1 min-w-0">

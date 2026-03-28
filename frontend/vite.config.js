@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/*.png', 'icons/*.svg'],
+      includeAssets: ['favicon.svg', 'logo.png', 'icons/*.png', 'icons/*.svg'],
       manifest: {
         id: '/',
         name: 'Storely - Votre Vitrine Digitale',

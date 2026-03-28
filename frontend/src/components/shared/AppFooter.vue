@@ -5,12 +5,7 @@
         <!-- Brand -->
         <div class="md:col-span-1">
           <router-link to="/" class="flex items-center gap-2 mb-4 no-underline">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand to-brand-amber flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </div>
+            <img src="/logo.png" alt="Storely" class="w-8 h-8 object-contain" />
             <span class="font-display text-lg font-bold" style="color: var(--logo-text)">Storely</span>
           </router-link>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted)">

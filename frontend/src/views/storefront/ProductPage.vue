@@ -139,7 +139,7 @@ const submitOrder = async () => {
           customizations: {
             title: 'Storely',
             description: `Commande #${payData.order_id}`,
-            logo: '/icons/icon-192.png',
+            logo: '/logo.png',
           },
           callback: async (response) => {
             paymentStep.value = 'processing'

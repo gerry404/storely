@@ -276,7 +276,7 @@ const submitOrder = async () => {
           customizations: {
             title: 'Storely',
             description: `Commande #${payData.order_id}`,
-            logo: '/icons/icon-192.png',
+            logo: '/logo.png',
           },
           callback: async (response) => {
             paymentStep.value = 'processing'
@@ -807,7 +807,7 @@ watch(selectedProduct, () => { selectedImageIndex.value = 0 })
       <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <!-- Free: full branding -->
         <a v-if="!store.effective_plan || store.effective_plan === 'free'" href="/" class="flex items-center gap-2 text-xs text-white/30 no-underline hover:text-white/50 transition font-medium">
-          <div class="w-5 h-5 rounded" :style="{ background: `linear-gradient(135deg, ${accent}, #FFAA33)` }"></div>
+          <img src="/logo.png" alt="Storely" class="w-5 h-5 object-contain" />
           Propulsé par Storely
         </a>
         <!-- Starter: small discrete link -->
