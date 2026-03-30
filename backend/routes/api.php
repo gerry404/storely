@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 // ─── Public ────────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/auth/google/redirect', [AuthController::class, 'googleRedirect']);
+Route::post('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
 // Public storefront
 Route::get('/shops/{slug}', [ShopController::class, 'show']);

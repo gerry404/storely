@@ -43,7 +43,7 @@ onUnmounted(() => observer?.disconnect())
     <div class="relative">
       <div class="flex items-center justify-center gap-2 mb-12">
         <div class="h-px flex-1 max-w-[80px]" style="background: linear-gradient(to right, transparent, rgba(255,255,255,0.08))" />
-        <p class="text-center text-[11px] font-display uppercase tracking-[0.25em] text-white/25 px-4">
+        <p class="text-center text-[11px] font-display uppercase tracking-[0.25em] t-text-faint px-4">
           Ils font confiance à Storely
         </p>
         <div class="h-px flex-1 max-w-[80px]" style="background: linear-gradient(to left, transparent, rgba(255,255,255,0.08))" />

@@ -5,11 +5,7 @@ import { useMagnetic } from '../../composables/useMagnetic'
 const sectionRef = ref(null)
 const btnRef = ref(null)
 const progress = ref(0)
-const countRevealed = ref(false)
-const count = ref(0)
-const targetCount = 2547
 let magneticCleanup = null
-let countInterval = null
 
 let ticking = false
 const onScroll = () => {
@@ -21,26 +17,8 @@ const onScroll = () => {
     const vh = window.innerHeight
     progress.value = Math.min(Math.max(1 - rect.top / (vh * 0.65), 0), 1.2)
 
-    // Trigger counter when section is ~40% visible
-    if (progress.value > 0.4 && !countRevealed.value) {
-      countRevealed.value = true
-      animateCount()
-    }
     ticking = false
   })
-}
-
-function animateCount() {
-  const duration = 1800
-  const start = performance.now()
-  const step = (now) => {
-    const elapsed = now - start
-    const p = Math.min(elapsed / duration, 1)
-    const ease = 1 - Math.pow(1 - p, 3)
-    count.value = Math.round(ease * targetCount)
-    if (p < 1) requestAnimationFrame(step)
-  }
-  requestAnimationFrame(step)
 }
 
 onMounted(async () => {
@@ -51,7 +29,6 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   if (magneticCleanup) magneticCleanup()
-  if (countInterval) clearInterval(countInterval)
 })
 </script>
 
@@ -108,29 +85,12 @@ onUnmounted(() => {
           <div class="absolute top-0 right-0 w-60 h-60 bg-brand/8 rounded-full blur-[80px] pointer-events-none" />
           <div class="absolute bottom-0 left-0 w-40 h-40 bg-electric/6 rounded-full blur-[60px] pointer-events-none" />
 
-          <!-- Social proof counter -->
-          <div class="flex items-center justify-center gap-3 mb-8">
-            <!-- Stacked avatars -->
-            <div class="flex -space-x-2">
-              <div v-for="(g, i) in ['from-brand to-brand-amber', 'from-electric to-sky', 'from-mint to-electric', 'from-brand-coral to-brand']" :key="i"
-                :class="`w-8 h-8 rounded-full bg-gradient-to-br ${g} border-2 flex items-center justify-center`"
-                :style="{ borderColor: 'var(--bg-secondary)', zIndex: 4 - i }"
-              >
-                <span class="text-white text-[9px] font-bold">{{ ['AM', 'FK', 'PO', 'CN'][i] }}</span>
-              </div>
-            </div>
-            <div class="flex items-baseline gap-1.5 pl-1">
-              <span class="font-display font-bold text-lg text-white tabular-nums">{{ count.toLocaleString('fr-FR') }}+</span>
-              <span class="text-xs text-white/35">commerçants actifs</span>
-            </div>
-          </div>
-
-          <h2 class="font-display font-bold text-3xl md:text-5xl text-white tracking-tight mb-5 relative">
-            Prêt à faire passer votre<br />
-            boutique au <span class="text-gradient">niveau supérieur ?</span>
+          <h2 class="font-display font-bold text-3xl md:text-5xl t-heading tracking-tight mb-5 relative">
+            Prêt à lancer<br />
+            <span class="text-gradient">votre boutique ?</span>
           </h2>
-          <p class="text-white/40 mb-10 max-w-lg mx-auto relative">
-            Rejoignez les milliers de commerçants qui ont déjà transformé leur business avec Storely.
+          <p class="t-text-muted mb-10 max-w-lg mx-auto relative">
+            C'est gratuit, c'est rapide, et votre première vente pourrait arriver dès aujourd'hui.
           </p>
 
           <!-- CTA buttons -->

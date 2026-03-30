@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -156,5 +157,102 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Déconnecté']);
+    }
+
+    public function googleRedirect()
+    {
+        $url = Socialite::driver('google')
+            ->stateless()
+            ->redirect()
+            ->getTargetUrl();
+
+        return response()->json(['url' => $url]);
+    }
+
+    public function googleCallback(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        try {
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->user();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Authentification Google échouée.'], 401);
+        }
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Existing user — login
+            $token = $user->createToken('storely')->plainTextToken;
+            $shop = Shop::where('user_id', $user->id)->first();
+
+            return response()->json([
+                'user' => $user,
+                'shop' => $shop,
+                'plan_info' => $shop ? PlanService::getPlanInfo($shop) : null,
+                'token' => $token,
+                'is_new' => false,
+            ]);
+        }
+
+        // New user — register
+        $user = User::create([
+            'name' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
+            'password' => Hash::make(Str::random(24)),
+            'google_id' => $googleUser->getId(),
+            'avatar' => $googleUser->getAvatar(),
+        ]);
+
+        $shopName = explode(' ', $googleUser->getName())[0] . "'s Shop";
+        $slug = Str::slug($shopName);
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Shop::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+
+        $promo = PlatformPromotion::findAutoRegisterPromo();
+        $promoPlan = $promo ? $promo->plan : 'free';
+
+        $shop = Shop::create([
+            'user_id' => $user->id,
+            'name' => $shopName,
+            'slug' => $slug,
+            'plan' => $promoPlan,
+            'country' => 'CM',
+        ]);
+
+        if ($promo) {
+            Subscription::create([
+                'shop_id' => $shop->id,
+                'plan' => $promo->plan,
+                'billing_cycle' => 'monthly',
+                'amount' => 0,
+                'payment_method' => 'promo',
+                'payment_reference' => 'PROMO-' . $promo->id,
+                'promo_code' => $promo->promo_code ?? ('AUTO-' . $promo->id),
+                'original_amount' => 0,
+                'status' => 'active',
+                'starts_at' => now(),
+                'expires_at' => now()->addDays($promo->duration_days),
+            ]);
+            $promo->increment('used_count');
+            $shop->refresh();
+        }
+
+        $token = $user->createToken('storely')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'shop' => $shop,
+            'plan_info' => PlanService::getPlanInfo($shop),
+            'token' => $token,
+            'is_new' => true,
+        ], 201);
     }
 }

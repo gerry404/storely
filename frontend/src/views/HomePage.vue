@@ -14,17 +14,17 @@ import WaveDivider from '../components/landing/WaveDivider.vue'
   <main>
     <HeroSection />
     <LogoTicker />
-    <WaveDivider accent="#FF6B2C" />
+    <WaveDivider accent="#FF6B2C" :variant="1" />
     <FeaturesSection />
-    <WaveDivider accent="#6C5CE7" flip />
-    <HowItWorks />
-    <WaveDivider accent="#2DD4A8" />
+    <WaveDivider accent="#6C5CE7" :variant="2" flip />
     <ShowcaseSection />
-    <WaveDivider accent="#FF6B2C" flip />
+    <WaveDivider accent="#2DD4A8" :variant="3" />
+    <HowItWorks />
+    <WaveDivider accent="#FF6B2C" :variant="1" flip />
     <TestimonialsSection />
-    <WaveDivider accent="#6C5CE7" />
+    <WaveDivider accent="#6C5CE7" :variant="2" />
     <PricingPreview />
-    <WaveDivider accent="#FFAA33" flip />
+    <WaveDivider accent="#FFAA33" :variant="3" flip />
     <CTASection />
   </main>
 </template>

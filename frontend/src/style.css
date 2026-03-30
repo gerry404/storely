@@ -26,13 +26,12 @@
   --color-electric: #6C5CE7;
   --color-sky: #38BDF8;
 
-  --font-display: 'Clash Display', 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'General Sans', 'Outfit', system-ui, sans-serif;
+  --font-display: 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&f[]=general-sans@200,300,400,500,600,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ═══ CSS VARIABLES - DARK MODE (default) ═══ */
 :root, .dark {

@@ -54,6 +54,11 @@ const routes = [
     meta: { authMode: 'register' }
   },
   {
+    path: '/auth/google/callback',
+    name: 'google-callback',
+    component: () => import('../views/GoogleCallbackPage.vue'),
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('../views/dashboard/DashboardLayout.vue'),
