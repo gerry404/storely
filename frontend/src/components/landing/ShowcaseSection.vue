@@ -31,7 +31,7 @@ const metrics = [
     icon: 'wallet',
     value: '0 FCFA',
     label: 'Pour commencer',
-    desc: 'Le plan gratuit est vraiment gratuit. Aucune carte bancaire demandée. Upgradez quand vous voulez.',
+    desc: 'Le plan gratuit est vraiment gratuit. Aucune carte bancaire demandée.',
     color: '#FFAA33',
   },
 ]
@@ -40,10 +40,8 @@ let observer
 let rotateTimer
 
 onMounted(() => {
-  observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) visible.value = true
-    })
+  observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) visible.value = true
   }, { threshold: 0.2 })
   if (sectionRef.value) observer.observe(sectionRef.value)
 
@@ -107,8 +105,6 @@ onUnmounted(() => {
               background: m.color,
             }"
           />
-
-          <!-- Value -->
           <p
             class="font-display font-bold text-3xl mb-1 transition-colors duration-300"
             :style="{ color: activeMetric === i ? m.color : 'var(--heading-text)' }"

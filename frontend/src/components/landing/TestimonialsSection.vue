@@ -92,7 +92,22 @@ const cardTransform = (offset) => {
 </script>
 
 <template>
-  <section ref="sectionRef" class="py-24 md:py-32 relative overflow-hidden">
+  <section ref="sectionRef" class="relative overflow-hidden">
+    <!-- Wavy top edge -->
+    <div class="absolute top-0 left-0 right-0 z-10" style="margin-top: -1px;">
+      <svg viewBox="0 0 1440 70" preserveAspectRatio="none" class="block w-full h-[40px] md:h-[70px]">
+        <path d="M0,70 C480,10 960,60 1440,20 L1440,0 L0,0Z" fill="var(--bg-primary)" />
+      </svg>
+    </div>
+    <!-- Accent bg -->
+    <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(45,212,168,0.03) 0%, rgba(255,107,44,0.04) 50%, rgba(45,212,168,0.02) 100%);" />
+    <!-- Wavy bottom edge -->
+    <div class="absolute bottom-0 left-0 right-0 z-10" style="margin-bottom: -1px;">
+      <svg viewBox="0 0 1440 70" preserveAspectRatio="none" class="block w-full h-[40px] md:h-[70px]">
+        <path d="M0,0 C240,60 720,10 1080,50 C1280,60 1400,30 1440,40 L1440,70 L0,70Z" fill="var(--bg-primary)" />
+      </svg>
+    </div>
+    <div class="py-24 md:py-32 relative">
     <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary), var(--bg-primary))" />
 
     <div class="relative max-w-6xl mx-auto px-6">
@@ -193,6 +208,7 @@ const cardTransform = (offset) => {
           </button>
         </div>
       </div>
+    </div>
     </div>
   </section>
 </template>

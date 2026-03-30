@@ -19,7 +19,8 @@ watch(route, (r) => {
   const isStorefront = r.name === 'storefront'
   const isProductPage = r.name === 'product-page'
   const isPaymentCallback = r.name === 'payment-callback'
-  const hideChrome = isDashboard || isAdmin || isStorefront || isProductPage || isPaymentCallback
+  const isAuth = r.name === 'login' || r.name === 'register' || r.name === 'google-callback'
+  const hideChrome = isDashboard || isAdmin || isStorefront || isProductPage || isPaymentCallback || isAuth
   showNavbar.value = !hideChrome
   showFooter.value = !hideChrome
 }, { immediate: true })

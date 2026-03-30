@@ -133,6 +133,16 @@ const focusedField = ref('')
 
 <template>
   <main class="min-h-screen flex relative" @click="onClickOutside">
+    <!-- Back button (floating) -->
+    <router-link
+      to="/"
+      class="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-display font-medium transition-all duration-200 no-underline group"
+      style="background: var(--glass-bg-light); border: 1px solid var(--border-subtle); color: var(--text-muted); backdrop-filter: blur(12px);"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:-translate-x-0.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Accueil
+    </router-link>
+
     <!-- Left: Branding panel (desktop only) -->
     <div class="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center" style="background: linear-gradient(135deg, #0f0f17 0%, #1a1025 50%, #0f0f17 100%);">
       <!-- Decorative elements -->

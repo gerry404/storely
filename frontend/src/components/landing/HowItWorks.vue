@@ -59,9 +59,25 @@ const lineProgress = () => {
 </script>
 
 <template>
-  <section ref="sectionRef" class="py-28 md:py-36 relative overflow-hidden">
-    <!-- Subtle bg -->
-    <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, transparent, var(--bg-secondary) 30%, var(--bg-secondary) 70%, transparent)" />
+  <section ref="sectionRef" class="relative overflow-hidden">
+    <!-- Wavy top edge -->
+    <div class="absolute top-0 left-0 right-0 z-10" style="margin-top: -1px;">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="block w-full h-[50px] md:h-[80px]">
+        <path d="M0,80 C240,20 480,60 720,30 C960,0 1200,50 1440,20 L1440,0 L0,0Z" fill="var(--bg-primary)" />
+      </svg>
+    </div>
+
+    <!-- Accent bg -->
+    <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(108,92,231,0.04) 0%, rgba(56,189,248,0.05) 50%, rgba(108,92,231,0.03) 100%);" />
+
+    <!-- Wavy bottom edge -->
+    <div class="absolute bottom-0 left-0 right-0 z-10" style="margin-bottom: -1px;">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="block w-full h-[50px] md:h-[80px]">
+        <path d="M0,0 C360,70 720,10 1080,50 C1260,70 1380,30 1440,40 L1440,80 L0,80Z" fill="var(--bg-primary)" />
+      </svg>
+    </div>
+
+    <div class="pt-20 pb-28 md:pt-28 md:pb-36">
 
     <div class="relative max-w-5xl mx-auto px-6">
       <!-- Header -->
@@ -170,6 +186,7 @@ const lineProgress = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   </section>
 </template>
