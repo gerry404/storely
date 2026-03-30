@@ -484,13 +484,19 @@ const focusedField = ref('')
 
 .auth-input {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: all 0.2s ease;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   color: var(--text-primary);
+}
+.auth-input.pl-11 {
+  padding-left: 2.75rem;
 }
 .auth-input::placeholder { color: var(--input-placeholder); }
 .auth-input:focus {
