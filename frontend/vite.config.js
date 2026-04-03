@@ -8,7 +8,7 @@ export default defineConfig({
     vue(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'logo.png', 'icons/*.png', 'icons/*.svg'],
       manifest: {
         id: '/',
@@ -78,7 +78,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff,ttf}'],
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
         clientsClaim: true,
         navigationPreload: true,
         runtimeCaching: [

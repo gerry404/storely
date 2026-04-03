@@ -37,8 +37,21 @@ export function usePWA() {
 
     // Service worker update
     if ('serviceWorker' in navigator) {
+      // Reload when new SW takes over
+      let refreshing = false
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true
+          window.location.reload()
+        }
+      })
+
       navigator.serviceWorker.getRegistration().then(reg => {
         if (reg) {
+          // Check if there's already a waiting worker
+          if (reg.waiting) {
+            updateAvailable.value = true
+          }
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing
             if (newWorker) {
@@ -68,6 +81,9 @@ export function usePWA() {
       navigator.serviceWorker.getRegistration().then(reg => {
         if (reg?.waiting) {
           reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+          // controllerchange listener will handle reload
+        } else {
+          // Fallback: no waiting worker, just reload
           window.location.reload()
         }
       })
