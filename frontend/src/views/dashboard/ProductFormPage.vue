@@ -139,7 +139,6 @@ const submit = async () => {
   fieldErrors.value = {}
 
   try {
-    const token = localStorage.getItem('storely-token')
     const formData = new FormData()
 
     // Append all form fields
@@ -177,30 +176,19 @@ const submit = async () => {
     }
 
     const url = isEdit.value ? `/api/products/${route.params.id}` : '/api/products'
-    const res = await fetch(url, {
+    const data = await api(url, {
       method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
       body: formData,
     })
 
-    const data = await res.json()
-
-    if (!res.ok) {
-      if (data.errors) {
-        fieldErrors.value = data.errors
-        error.value = data.message || 'Veuillez corriger les erreurs'
-      } else {
-        error.value = data.message || 'Erreur lors de la sauvegarde'
-      }
-      return
-    }
-
     router.push('/dashboard/products')
   } catch (e) {
-    error.value = e.message || 'Erreur réseau'
+    if (e.errors) {
+      fieldErrors.value = e.errors
+      error.value = e.message || 'Veuillez corriger les erreurs'
+    } else {
+      error.value = e.message || 'Erreur réseau'
+    }
   } finally {
     saving.value = false
   }

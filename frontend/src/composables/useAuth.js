@@ -41,15 +41,17 @@ export function useAuth() {
   }
 
   const api = async (url, options = {}) => {
+    const isFormData = options.body instanceof FormData
     const headers = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       'Accept': 'application/json',
       ...(token.value ? { 'Authorization': `Bearer ${token.value}` } : {}),
       ...options.headers,
     }
     const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`
     const res = await fetch(fullUrl, { ...options, headers })
-    const data = await res.json()
+    const text = await res.text()
+    const data = text ? JSON.parse(text) : {}
     if (!res.ok) {
       const error = new Error(data.message || 'Une erreur est survenue')
       error.status = res.status
