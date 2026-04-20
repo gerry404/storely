@@ -210,12 +210,23 @@ const shareShop = async () => {
 // ─── Order Form ────────────────────────────────
 const showOrderForm = ref(false)
 const orderProduct = ref(null)
-const orderForm = ref({ name: '', phone: '', note: '' })
+const orderForm = ref({ name: '', phone: '', note: '', address: '' })
 const orderQty = ref(1)
 const orderSubmitting = ref(false)
 const orderSuccess = ref(false)
 const orderError = ref('')
 const orderPaymentMethod = ref('flutterwave')
+const orderDeliveryZoneId = ref(null)
+
+const deliveryZones = computed(() => {
+  const list = store.value?.delivery_zones || []
+  return list.filter(z => z.active !== false)
+})
+const selectedDeliveryZone = computed(() => {
+  if (!orderDeliveryZoneId.value) return null
+  return deliveryZones.value.find(z => z.id === orderDeliveryZoneId.value) || null
+})
+const deliveryFee = computed(() => selectedDeliveryZone.value?.price || 0)
 
 // Payment modal
 const showPaymentModal = ref(false)
@@ -225,15 +236,19 @@ const paymentMessage = ref('')
 const openOrder = (product) => {
   orderProduct.value = product
   selectedProduct.value = null
-  orderForm.value = { name: '', phone: '', note: '' }
+  orderForm.value = { name: '', phone: '', note: '', address: '' }
   orderQty.value = 1
   orderError.value = ''
   orderSuccess.value = false
   orderPaymentMethod.value = 'flutterwave'
+  // Pre-select default zone if any
+  const defaultZone = deliveryZones.value.find(z => z.is_default) || deliveryZones.value[0]
+  orderDeliveryZoneId.value = defaultZone ? defaultZone.id : null
   showOrderForm.value = true
 }
 
-const orderTotal = computed(() => orderProduct.value ? orderProduct.value.price * orderQty.value : 0)
+const orderSubtotal = computed(() => orderProduct.value ? orderProduct.value.price * orderQty.value : 0)
+const orderTotal = computed(() => orderSubtotal.value + deliveryFee.value)
 
 const submitOrder = async () => {
   if (!orderForm.value.name || !orderForm.value.phone) { orderError.value = 'Remplissez votre nom et téléphone.'; return }
@@ -242,7 +257,16 @@ const submitOrder = async () => {
     const res = await fetch(apiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ product_id: orderProduct.value.id, customer_name: orderForm.value.name, customer_phone: orderForm.value.phone, quantity: orderQty.value, note: orderForm.value.note || undefined, payment_method: orderPaymentMethod.value }),
+      body: JSON.stringify({
+        product_id: orderProduct.value.id,
+        customer_name: orderForm.value.name,
+        customer_phone: orderForm.value.phone,
+        quantity: orderQty.value,
+        note: orderForm.value.note || undefined,
+        payment_method: orderPaymentMethod.value,
+        delivery_zone_id: orderDeliveryZoneId.value || undefined,
+        delivery_address: orderForm.value.address || undefined,
+      }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || 'Erreur')
@@ -925,16 +949,53 @@ watch(selectedProduct, () => { selectedImageIndex.value = 0 })
                 <button @click="orderQty++" class="w-9 h-9 flex items-center justify-center text-white/70 hover:bg-white/5 transition text-base font-semibold">+</button>
               </div>
             </div>
-            <!-- Total -->
-            <div class="flex items-center justify-between py-3 mb-3">
-              <span class="text-sm text-white/50">Total</span>
-              <span class="text-lg font-display font-bold" :style="{ color: accent }">{{ fmt(orderTotal) }} FCFA</span>
+            <!-- Delivery zone (if configured and physical product) -->
+            <div v-if="deliveryZones.length && orderProduct && orderProduct.product_type !== 'digital'" class="py-3 border-b border-white/5">
+              <label class="sf-form-label block mb-2">Zone de livraison</label>
+              <div class="grid grid-cols-1 gap-1.5 max-h-44 overflow-y-auto pr-1">
+                <button
+                  v-for="zone in deliveryZones"
+                  :key="zone.id"
+                  type="button"
+                  @click="orderDeliveryZoneId = zone.id"
+                  class="flex items-center justify-between p-2.5 rounded-lg border text-left transition-all"
+                  :class="orderDeliveryZoneId === zone.id ? 'border-[var(--a)] bg-[color-mix(in_srgb,var(--a)_10%,transparent)]' : 'border-white/10 bg-white/[0.02] hover:bg-white/5'"
+                >
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-white truncate">{{ zone.name }}</p>
+                    <p v-if="zone.estimated_hours" class="text-[10px] text-white/35 mt-0.5">
+                      Livraison sous {{ zone.estimated_hours < 24 ? zone.estimated_hours + 'h' : Math.round(zone.estimated_hours / 24) + ' j' }}
+                    </p>
+                  </div>
+                  <span class="text-xs font-display font-bold ml-2 shrink-0" :style="{ color: accent }">
+                    {{ zone.price === 0 ? 'Gratuit' : fmt(zone.price) + ' F' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+            <!-- Totals -->
+            <div class="py-3 mb-3 space-y-1.5">
+              <div v-if="deliveryFee > 0" class="flex items-center justify-between text-xs text-white/50">
+                <span>Sous-total</span><span>{{ fmt(orderSubtotal) }} FCFA</span>
+              </div>
+              <div v-if="deliveryFee > 0" class="flex items-center justify-between text-xs text-white/50">
+                <span>Livraison {{ selectedDeliveryZone ? '(' + selectedDeliveryZone.name + ')' : '' }}</span>
+                <span>{{ fmt(deliveryFee) }} FCFA</span>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-sm text-white/70">Total</span>
+                <span class="text-lg font-display font-bold" :style="{ color: accent }">{{ fmt(orderTotal) }} FCFA</span>
+              </div>
             </div>
             <div v-if="orderError" class="mb-3 p-3 rounded-lg text-xs font-medium" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.15); color: #EF4444">{{ orderError }}</div>
             <form @submit.prevent="submitOrder" class="space-y-3">
               <div><label class="sf-form-label">Nom complet</label><input v-model="orderForm.name" type="text" required placeholder="Jean Kamga" class="sf-form-input" /></div>
               <div><label class="sf-form-label">Téléphone</label><input v-model="orderForm.phone" type="tel" required placeholder="+237 6XX XXX XXX" class="sf-form-input" /></div>
-              <div><label class="sf-form-label">Note <span class="text-white/20">(optionnel)</span></label><textarea v-model="orderForm.note" rows="2" placeholder="Taille, couleur, adresse..." class="sf-form-input resize-none"></textarea></div>
+              <div v-if="selectedDeliveryZone">
+                <label class="sf-form-label">Adresse de livraison <span class="text-white/20">(précisez votre quartier / point de repère)</span></label>
+                <input v-model="orderForm.address" type="text" placeholder="Ex: Akwa, Rue de la Joie, face pharmacie" class="sf-form-input" />
+              </div>
+              <div><label class="sf-form-label">Note <span class="text-white/20">(optionnel)</span></label><textarea v-model="orderForm.note" rows="2" placeholder="Taille, couleur, détails..." class="sf-form-input resize-none"></textarea></div>
               <!-- Payment method -->
               <div v-if="orderProduct && orderProduct.product_type !== 'digital'">
                 <label class="sf-form-label">Mode de paiement</label>

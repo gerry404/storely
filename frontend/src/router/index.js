@@ -70,6 +70,7 @@ const routes = [
       { path: 'products/:id/edit', name: 'dashboard-product-edit', component: () => import('../views/dashboard/ProductFormPage.vue') },
       { path: 'orders', name: 'dashboard-orders', component: () => import('../views/dashboard/DashboardOrders.vue') },
       { path: 'promotions', name: 'dashboard-promotions', component: () => import('../views/dashboard/DashboardPromotions.vue') },
+      { path: 'delivery', name: 'dashboard-delivery', component: () => import('../views/dashboard/DashboardDelivery.vue') },
       { path: 'customize', name: 'dashboard-customize', component: () => import('../views/dashboard/DashboardCustomize.vue') },
       { path: 'settings', name: 'dashboard-settings', component: () => import('../views/dashboard/DashboardSettings.vue') },
       { path: 'upgrade', name: 'dashboard-upgrade', component: () => import('../views/dashboard/DashboardUpgrade.vue') },

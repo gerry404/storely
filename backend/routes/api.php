@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\BadgeController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\DeliveryZoneController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ────────────────────────────────────────────
@@ -84,6 +85,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Orders
     Route::get('/orders', [OrderController::class, 'index']);
     Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
+
+    // Delivery zones
+    Route::get('/delivery-zones', [DeliveryZoneController::class, 'index']);
+    Route::post('/delivery-zones', [DeliveryZoneController::class, 'store']);
+    Route::put('/delivery-zones/{zone}', [DeliveryZoneController::class, 'update']);
+    Route::delete('/delivery-zones/{zone}', [DeliveryZoneController::class, 'destroy']);
 
     // Subscription
     Route::get('/subscription', [SubscriptionController::class, 'current']);

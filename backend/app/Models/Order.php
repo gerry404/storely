@@ -14,6 +14,7 @@ class Order extends Model
         'is_preorder', 'deposit_amount',
         'payment_status', 'payment_method', 'payment_reference',
         'commission_amount', 'seller_amount', 'paid_at',
+        'delivery_zone_id', 'delivery_fee', 'delivery_address',
     ];
 
     protected $casts = [
@@ -29,6 +30,11 @@ class Order extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function deliveryZone(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryZone::class);
     }
 
     public function digitalSale(): HasOne

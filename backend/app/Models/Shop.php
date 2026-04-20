@@ -74,6 +74,11 @@ class Shop extends Model
         return $this->hasMany(Conversation::class);
     }
 
+    public function deliveryZones(): HasMany
+    {
+        return $this->hasMany(DeliveryZone::class);
+    }
+
     public function isBoosted(): bool
     {
         return $this->boost_expires_at && $this->boost_expires_at->isFuture();

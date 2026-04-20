@@ -22,6 +22,8 @@ class ShopController extends Controller
                   ->where(function ($q2) {
                       $q2->whereNull('ends_at')->orWhere('ends_at', '>=', now());
                   });
+            }, 'deliveryZones' => function ($q) {
+                $q->where('active', true)->orderBy('sort_order')->orderBy('id');
             }])
             ->firstOrFail();
 

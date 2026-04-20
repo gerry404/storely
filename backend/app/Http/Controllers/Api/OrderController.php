@@ -8,6 +8,7 @@ use App\Models\Shop;
 use App\Models\Product;
 use App\Models\DigitalSale;
 use App\Models\DownloadToken;
+use App\Models\DeliveryZone;
 use App\Services\PlanService;
 use Illuminate\Http\Request;
 
@@ -39,23 +40,39 @@ class OrderController extends Controller
             'quantity' => 'nullable|integer|min:1',
             'note' => 'nullable|string|max:500',
             'payment_method' => 'nullable|in:flutterwave,cod',
+            'delivery_zone_id' => 'nullable|integer|exists:delivery_zones,id',
+            'delivery_address' => 'nullable|string|max:500',
         ]);
 
         $product = Product::with('shop')->findOrFail($request->product_id);
         $shop = $product->shop;
         $quantity = $request->quantity ?? 1;
-        $total = $product->price * $quantity;
+        $subtotal = $product->price * $quantity;
         $isPreorder = $product->is_preorder;
 
-        // Calculate deposit if preorder
-        $depositAmount = null;
-        if ($isPreorder && $product->preorder_deposit_percent) {
-            $depositAmount = (int) ceil($total * $product->preorder_deposit_percent / 100);
+        $deliveryZone = null;
+        $deliveryFee = 0;
+        if ($request->delivery_zone_id) {
+            $deliveryZone = DeliveryZone::where('id', $request->delivery_zone_id)
+                ->where('shop_id', $shop->id)
+                ->where('active', true)
+                ->first();
+            if ($deliveryZone) {
+                $deliveryFee = $deliveryZone->price;
+            }
         }
 
-        // Calculate commission for physical products (same tiers as digital)
+        $total = $subtotal + $deliveryFee;
+
+        // Calculate deposit if preorder (based on product subtotal, not delivery)
+        $depositAmount = null;
+        if ($isPreorder && $product->preorder_deposit_percent) {
+            $depositAmount = (int) ceil($subtotal * $product->preorder_deposit_percent / 100);
+        }
+
+        // Commission is on product subtotal only — delivery fee goes 100% to seller
         $commissionRate = PlanService::getCommissionRate($shop);
-        $commissionAmount = (int) ceil($total * $commissionRate / 100);
+        $commissionAmount = (int) ceil($subtotal * $commissionRate / 100);
         $sellerAmount = $total - $commissionAmount;
 
         $paymentMethod = $request->payment_method ?? 'cod';
@@ -75,6 +92,9 @@ class OrderController extends Controller
             'payment_method' => $paymentMethod,
             'commission_amount' => $commissionAmount,
             'seller_amount' => $sellerAmount,
+            'delivery_zone_id' => $deliveryZone?->id,
+            'delivery_fee' => $deliveryFee,
+            'delivery_address' => $request->delivery_address,
         ]);
 
         $response = ['order' => $order];
@@ -85,10 +105,10 @@ class OrderController extends Controller
                 'shop_id' => $shop->id,
                 'product_id' => $product->id,
                 'order_id' => $order->id,
-                'sale_amount' => $total,
+                'sale_amount' => $subtotal,
                 'commission_percent' => $commissionRate,
                 'commission_amount' => $commissionAmount,
-                'seller_amount' => $sellerAmount,
+                'seller_amount' => $subtotal - $commissionAmount,
             ]);
 
             $downloadToken = DownloadToken::create([
