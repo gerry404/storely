@@ -27,7 +27,7 @@ watch(route, (r) => {
 </script>
 
 <template>
-  <div class="grain-overlay min-h-screen">
+  <div class="min-h-screen">
     <AppNavbar v-if="showNavbar" />
     <router-view v-slot="{ Component }">
       <transition name="page" mode="out-in">

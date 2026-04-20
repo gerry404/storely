@@ -1,38 +1,36 @@
 import { ref, onMounted } from 'vue'
 
-const theme = ref('dark')
+// Light-first: default is 'light' unless user picked dark or has OS dark preference
+const theme = ref('light')
 
 export function useTheme() {
   const init = () => {
     const saved = localStorage.getItem('storely-theme')
-    if (saved) {
+    if (saved === 'light' || saved === 'dark') {
       theme.value = saved
     } else {
-      theme.value = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+      theme.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
     applyTheme()
   }
 
   const toggle = () => {
-    // Add transition class for smooth theme switch
     document.documentElement.classList.add('theme-transition')
     theme.value = theme.value === 'dark' ? 'light' : 'dark'
     localStorage.setItem('storely-theme', theme.value)
     applyTheme()
-    // Remove transition class after animation
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transition')
-    }, 500)
+    }, 400)
   }
 
   const applyTheme = () => {
     document.documentElement.classList.remove('light', 'dark')
     document.documentElement.classList.add(theme.value)
 
-    // Update meta theme-color for PWA/mobile browser
     const metaTheme = document.querySelector('meta[name="theme-color"]')
     if (metaTheme) {
-      metaTheme.setAttribute('content', theme.value === 'light' ? '#FAFAF8' : '#0A0A0F')
+      metaTheme.setAttribute('content', theme.value === 'light' ? '#FDFBF7' : '#0B0B10')
     }
   }
 

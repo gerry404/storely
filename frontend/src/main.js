@@ -3,12 +3,12 @@ import './style.css'
 import App from './App.vue'
 import router from './router'
 
-// Apply saved theme before mount to prevent flash
+// Light-first: default light unless user picked dark or OS explicitly dark
 const savedTheme = localStorage.getItem('storely-theme')
-  || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+  || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 document.documentElement.classList.add(savedTheme)
 document.querySelector('meta[name="theme-color"]')?.setAttribute(
-  'content', savedTheme === 'light' ? '#FAFAF8' : '#0A0A0F'
+  'content', savedTheme === 'light' ? '#FDFBF7' : '#0B0B10'
 )
 
 const app = createApp(App)
