@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\DeliveryZoneController;
+use App\Http\Controllers\Api\AIController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ────────────────────────────────────────────
@@ -91,6 +92,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/delivery-zones', [DeliveryZoneController::class, 'store']);
     Route::put('/delivery-zones/{zone}', [DeliveryZoneController::class, 'update']);
     Route::delete('/delivery-zones/{zone}', [DeliveryZoneController::class, 'destroy']);
+
+    // AI product copywriter
+    Route::post('/ai/product', [AIController::class, 'generateProduct']);
 
     // Subscription
     Route::get('/subscription', [SubscriptionController::class, 'current']);

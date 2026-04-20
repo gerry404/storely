@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import { usePlan } from '../../composables/usePlan'
 import { useCategories } from '../../composables/useCategories'
+import { apiUrl } from '../../composables/useStorage'
 
 const route = useRoute()
 const router = useRouter()
@@ -108,6 +109,80 @@ const removeExistingImage = (index) => {
 const removeNewImage = (index) => {
   newImageFiles.value.splice(index, 1)
   newImagePreviews.value.splice(index, 1)
+}
+
+// ── AI product copywriter ──
+const aiOpen = ref(false)
+const aiFile = ref(null)
+const aiPreview = ref('')
+const aiHint = ref('')
+const aiGenerating = ref(false)
+const aiError = ref('')
+const aiResult = ref(null)
+
+const openAI = () => {
+  aiOpen.value = true
+  aiFile.value = null
+  aiPreview.value = ''
+  aiHint.value = ''
+  aiError.value = ''
+  aiResult.value = null
+}
+
+const onAIFileSelect = (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  aiFile.value = file
+  aiError.value = ''
+  const reader = new FileReader()
+  reader.onload = (ev) => { aiPreview.value = ev.target.result }
+  reader.readAsDataURL(file)
+}
+
+const runAI = async () => {
+  if (!aiFile.value) { aiError.value = 'Choisissez une photo du produit.'; return }
+  aiGenerating.value = true
+  aiError.value = ''
+  try {
+    const fd = new FormData()
+    fd.append('image', aiFile.value)
+    if (aiHint.value) fd.append('hint', aiHint.value)
+    const token = localStorage.getItem('storely-token')
+    const res = await fetch(apiUrl('/api/ai/product'), {
+      method: 'POST',
+      headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+      body: fd,
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || 'Erreur IA')
+    aiResult.value = data
+  } catch (e) {
+    aiError.value = e.message || 'Erreur IA'
+  } finally {
+    aiGenerating.value = false
+  }
+}
+
+const applyAIResult = () => {
+  if (!aiResult.value) return
+  if (aiResult.value.name) form.value.name = aiResult.value.name
+  if (aiResult.value.description) {
+    form.value.description = aiResult.value.description
+    if (!form.value.long_description) form.value.long_description = aiResult.value.description
+  }
+  if (Array.isArray(aiResult.value.tags) && aiResult.value.tags.length) {
+    const tagStr = aiResult.value.tags.join(', ')
+    if (!form.value.description.includes(tagStr)) {
+      // tags appended silently to long_description so they're searchable; keep short description clean
+      form.value.long_description = (form.value.long_description || '').trim()
+    }
+  }
+  // Also reuse the AI image as first product image if none selected yet
+  if (aiFile.value && newImageFiles.value.length === 0 && existingImages.value.length === 0 && canAddMoreImages.value) {
+    newImageFiles.value.push(aiFile.value)
+    newImagePreviews.value.push(aiPreview.value)
+  }
+  aiOpen.value = false
 }
 
 const onDigitalFileSelect = (e) => {
@@ -239,7 +314,13 @@ const submit = async () => {
     <template v-else>
       <!-- Step 1: Info -->
       <div v-show="step === 1" class="space-y-5">
-        <h2 class="font-display font-semibold text-lg" :style="{ color: 'var(--text-primary)' }">Informations</h2>
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <h2 class="font-display font-semibold text-lg" :style="{ color: 'var(--text-primary)' }">Informations</h2>
+          <button v-if="!isEdit" type="button" @click="openAI" class="ai-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.39 4.84L20 8l-4 3.9.94 5.5L12 14.77 7.06 17.4 8 11.9 4 8l5.61-1.16L12 2z"/></svg>
+            Générer avec l'IA
+          </button>
+        </div>
 
         <!-- Product type -->
         <div>
@@ -472,5 +553,104 @@ const submit = async () => {
         </button>
       </div>
     </template>
+
+    <!-- AI generator modal -->
+    <teleport to="body">
+      <transition
+        enter-active-class="transition-all duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-all duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="aiOpen" class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">
+          <div class="absolute inset-0" style="background: rgba(11,11,16,0.55)" @click="aiOpen = false" />
+          <div class="relative w-full max-w-md rounded-t-3xl md:rounded-3xl p-6 md:p-7 max-h-[90vh] overflow-y-auto"
+               :style="{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: 'var(--card-shadow-xl)' }">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="font-display font-bold text-lg" :style="{ color: 'var(--text-primary)' }">Générateur IA</h3>
+              <button @click="aiOpen = false" class="btn-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <p class="text-xs mb-5" :style="{ color: 'var(--text-muted)' }">Photo de votre produit → titre accrocheur, description vendeuse et tags SEO en 5 secondes.</p>
+
+            <!-- Upload zone -->
+            <label
+              class="block border-2 border-dashed rounded-2xl overflow-hidden cursor-pointer transition-colors relative"
+              :style="{ borderColor: 'var(--border-default)', background: 'var(--bg-secondary)' }"
+            >
+              <div v-if="aiPreview" class="relative">
+                <img :src="aiPreview" class="w-full h-48 object-cover" />
+              </div>
+              <div v-else class="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" :style="{ color: 'var(--text-muted)' }"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p class="text-sm font-semibold mt-3" :style="{ color: 'var(--text-primary)' }">Choisir une photo</p>
+                <p class="text-xs mt-1" :style="{ color: 'var(--text-muted)' }">JPG, PNG ou WEBP — max 8 Mo</p>
+              </div>
+              <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onAIFileSelect" />
+            </label>
+
+            <!-- Hint -->
+            <div class="mt-4">
+              <label class="block text-xs font-display font-semibold mb-1.5" :style="{ color: 'var(--text-muted)' }">INDICE (OPTIONNEL)</label>
+              <input v-model="aiHint" type="text" placeholder="Ex: sac en cuir fait main, taille M"
+                     class="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                     :style="{ background: 'var(--bg-secondary)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }" />
+            </div>
+
+            <!-- Error -->
+            <div v-if="aiError" class="mt-3 p-3 rounded-lg text-xs" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444">{{ aiError }}</div>
+
+            <!-- Result preview -->
+            <div v-if="aiResult" class="mt-4 p-4 rounded-xl" :style="{ background: 'var(--bg-secondary)', border: '1px solid var(--border-default)' }">
+              <p class="text-[10px] font-display font-bold uppercase tracking-wider mb-2" style="color: var(--color-brand)">Résultat IA</p>
+              <p class="text-sm font-display font-bold mb-1" :style="{ color: 'var(--text-primary)' }">{{ aiResult.name }}</p>
+              <p class="text-xs leading-relaxed mb-3" :style="{ color: 'var(--text-secondary)' }">{{ aiResult.description }}</p>
+              <div class="flex flex-wrap gap-1.5">
+                <span v-for="t in aiResult.tags" :key="t" class="px-2 py-0.5 rounded-full text-[10px]"
+                      :style="{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)' }">#{{ t }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 mt-5">
+              <button v-if="!aiResult" type="button" @click="runAI" :disabled="aiGenerating || !aiFile" class="btn-primary flex-1 justify-center" style="flex:1">
+                <svg v-if="aiGenerating" class="animate-spin mr-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2a10 10 0 019.95 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                {{ aiGenerating ? 'Analyse...' : 'Générer la fiche' }}
+              </button>
+              <template v-else>
+                <button type="button" @click="aiResult = null" class="btn-secondary" style="flex:1">Recommencer</button>
+                <button type="button" @click="applyAIResult" class="btn-primary" style="flex:1">Appliquer</button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </teleport>
   </div>
 </template>
+
+<style scoped>
+.ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 14px -4px rgba(99,102,241,0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ai-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -4px rgba(99,102,241,0.55);
+}
+</style>
