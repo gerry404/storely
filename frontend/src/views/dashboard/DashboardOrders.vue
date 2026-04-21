@@ -62,8 +62,65 @@ async function copyCode(code) {
   try { await navigator.clipboard.writeText(code) } catch {}
 }
 
+// Relance / abandoned-order reminder
+const remindingId = ref(null)
+
+function formatCurrencyRaw(n) {
+  return new Intl.NumberFormat('fr-FR').format(n) + ' F'
+}
+
+function buildRemindMessage(order) {
+  const name = order.customer_name?.split(' ')[0] || 'Bonjour'
+  const productName = order.product?.name || 'votre commande'
+  const parts = [
+    `Bonjour ${name} ! 👋`,
+    '',
+    `Nous n'avons pas encore reçu votre paiement pour ${productName} (commande #ST-${order.id}, ${formatCurrencyRaw(order.total)}).`,
+  ]
+  if (order.payment_code) {
+    parts.push('')
+    parts.push(`Pour finaliser, envoyez le paiement par Mobile Money en indiquant le code *${order.payment_code}* dans le motif.`)
+  } else {
+    parts.push('')
+    parts.push('Pour finaliser votre commande, répondez à ce message ou contactez-nous.')
+  }
+  parts.push('')
+  parts.push('Merci ! 🙏')
+  return parts.join('\n')
+}
+
+async function remindOrder(order) {
+  remindingId.value = order.id
+  const phone = (order.customer_phone || '').replace(/\D/g, '')
+  const message = buildRemindMessage(order)
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+  try {
+    const updated = await api(`/api/orders/${order.id}/remind`, { method: 'POST' })
+    const idx = orders.value.findIndex(o => o.id === order.id)
+    if (idx !== -1) orders.value[idx] = { ...orders.value[idx], ...updated }
+  } catch (e) {
+    console.error('remind failed', e)
+  } finally {
+    remindingId.value = null
+  }
+}
+
+function timeAgoShort(date) {
+  if (!date) return ''
+  const diffSec = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+  if (diffSec < 60) return "à l'instant"
+  const diffMin = Math.floor(diffSec / 60)
+  if (diffMin < 60) return `il y a ${diffMin} min`
+  const diffH = Math.floor(diffMin / 60)
+  if (diffH < 24) return `il y a ${diffH} h`
+  const diffD = Math.floor(diffH / 24)
+  return `il y a ${diffD} j`
+}
+
 const filters = [
   { key: 'all', label: 'Toutes' },
+  { key: 'abandoned', label: 'À relancer' },
   { key: 'new', label: 'Nouvelles' },
   { key: 'confirmed', label: 'Confirmées' },
   { key: 'shipped', label: 'Expédiées' },
@@ -72,6 +129,15 @@ const filters = [
   { key: 'preorder', label: 'Précommandes' },
   { key: 'paid', label: 'Payées' },
 ]
+
+// Abandoned = unpaid, not cancelled, created > 60 min ago
+const ABANDON_THRESHOLD_MIN = 60
+function isAbandoned(order) {
+  if (order.payment_status === 'paid') return false
+  if (order.status === 'cancelled') return false
+  const createdMs = new Date(order.created_at).getTime()
+  return (Date.now() - createdMs) > ABANDON_THRESHOLD_MIN * 60 * 1000
+}
 
 const paymentStatusLabels = {
   unpaid: 'Non payé',
@@ -109,6 +175,7 @@ const filterCounts = computed(() => {
   }
   counts.preorder = orders.value.filter(o => o.is_preorder).length
   counts.paid = orders.value.filter(o => o.payment_status === 'paid').length
+  counts.abandoned = orders.value.filter(isAbandoned).length
   return counts
 })
 
@@ -116,6 +183,7 @@ const filteredOrders = computed(() => {
   if (activeFilter.value === 'all') return orders.value
   if (activeFilter.value === 'preorder') return orders.value.filter(o => o.is_preorder)
   if (activeFilter.value === 'paid') return orders.value.filter(o => o.payment_status === 'paid')
+  if (activeFilter.value === 'abandoned') return orders.value.filter(isAbandoned)
   return orders.value.filter(o => o.status === activeFilter.value)
 })
 
@@ -204,12 +272,13 @@ onMounted(async () => {
         :key="filter.key"
         @click="activeFilter = filter.key"
         :class="[
-          'px-4 py-2 rounded-xl text-sm font-medium shrink-0 transition-all',
+          'px-4 py-2 rounded-xl text-sm font-medium shrink-0 transition-all flex items-center gap-1.5',
           activeFilter === filter.key
-            ? 'bg-white/10 text-white'
-            : 'text-white/40 hover:bg-white/5'
+            ? (filter.key === 'abandoned' ? 'bg-amber-500/15 text-amber-400' : 'bg-white/10 text-white')
+            : (filter.key === 'abandoned' && filterCounts.abandoned ? 'text-amber-400/80 hover:bg-amber-500/10' : 'text-white/40 hover:bg-white/5')
         ]"
       >
+        <span v-if="filter.key === 'abandoned' && filterCounts.abandoned" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
         {{ filter.label }} ({{ filterCounts[filter.key] || 0 }})
       </button>
     </div>
@@ -301,7 +370,7 @@ onMounted(async () => {
               <p class="text-xs text-white/40 mt-0.5">{{ order.customer_phone }}</p>
               <p class="text-xs text-white/30 mt-1 truncate">{{ getItemNames(order) }}</p>
               <!-- Payment code (unpaid physical orders with a code) -->
-              <div v-if="order.payment_code && order.payment_status !== 'paid'" class="mt-2 flex items-center gap-2">
+              <div v-if="order.payment_code && order.payment_status !== 'paid'" class="mt-2 flex items-center gap-2 flex-wrap">
                 <span class="text-[10px] uppercase tracking-wider text-white/35">Code MoMo</span>
                 <button
                   @click="copyCode(order.payment_code)"
@@ -310,6 +379,10 @@ onMounted(async () => {
                 >
                   {{ order.payment_code }}
                 </button>
+                <span v-if="order.reminder_sent_at" class="inline-flex items-center gap-1 text-[10px] text-amber-400/80 bg-amber-500/5 px-1.5 py-0.5 rounded-md">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Relancé {{ timeAgoShort(order.reminder_sent_at) }}
+                </span>
               </div>
             </div>
 
@@ -328,7 +401,22 @@ onMounted(async () => {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 Marquer payé
               </button>
+              <!-- Smart WhatsApp action: relance for abandoned, plain contact otherwise -->
+              <button
+                v-if="isAbandoned(order)"
+                @click="remindOrder(order)"
+                :disabled="remindingId === order.id"
+                class="relative px-3 py-2 rounded-xl text-xs font-semibold bg-[#25D366] text-white hover:bg-[#1DA851] transition shrink-0 flex items-center gap-1.5 disabled:opacity-70"
+                :title="order.reminder_sent_at ? `Déjà relancé ${timeAgoShort(order.reminder_sent_at)} (${order.reminder_count || 0}×)` : 'Relancer ce client par WhatsApp'"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                </svg>
+                {{ order.reminder_sent_at ? 'Relancer à nouveau' : 'Relancer' }}
+                <span v-if="order.reminder_count" class="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-white/20">{{ order.reminder_count }}×</span>
+              </button>
               <a
+                v-else
                 :href="whatsappUrl(order.customer_phone)"
                 target="_blank"
                 rel="noopener noreferrer"

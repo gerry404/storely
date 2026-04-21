@@ -181,6 +181,23 @@ class OrderController extends Controller
     }
 
     /**
+     * Mark that a reminder (WhatsApp relance) was sent for this order.
+     * Timestamp is used to rate-limit the UI and to surface "x min ago" to the merchant.
+     */
+    public function markReminded(Request $request, Order $order)
+    {
+        $shop = Shop::where('user_id', $request->user()->id)->firstOrFail();
+        abort_if($order->shop_id !== $shop->id, 403);
+
+        $order->update([
+            'reminder_sent_at' => now(),
+            'reminder_count' => ($order->reminder_count ?? 0) + 1,
+        ]);
+
+        return response()->json($order->fresh());
+    }
+
+    /**
      * Public webhook for SMS-forwarder apps (Android).
      * Accepts raw SMS text, extracts amount + payment_code, auto-matches pending order.
      * Secured by a shop-specific token.

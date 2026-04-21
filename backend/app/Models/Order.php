@@ -16,11 +16,13 @@ class Order extends Model
         'payment_code', 'payment_source',
         'commission_amount', 'seller_amount', 'paid_at',
         'delivery_zone_id', 'delivery_fee', 'delivery_address',
+        'reminder_sent_at', 'reminder_count',
     ];
 
     protected $casts = [
         'is_preorder' => 'boolean',
         'paid_at' => 'datetime',
+        'reminder_sent_at' => 'datetime',
     ];
 
     public function shop(): BelongsTo

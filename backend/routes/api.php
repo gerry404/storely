@@ -91,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
     Route::post('/orders/{order}/mark-paid', [OrderController::class, 'markPaid']);
+    Route::post('/orders/{order}/remind', [OrderController::class, 'markReminded']);
 
     // Delivery zones
     Route::get('/delivery-zones', [DeliveryZoneController::class, 'index']);
