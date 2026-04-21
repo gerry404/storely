@@ -681,6 +681,255 @@ h1, h2, h3, h4, h5, h6 {
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+/* ═══════════════════════════════════════════════════════════
+   SCROLL-REVEAL V2 (2026 — mask-clip, stagger, directional)
+   ═══════════════════════════════════════════════════════════ */
+/* Mask-clip reveal : texte et blocs s'affichent par dévoilement,
+   plus premium qu'un simple fade */
+.reveal-mask {
+  clip-path: inset(0 0 100% 0);
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    clip-path 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.6s ease,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-mask.is-visible {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide-up with blur (nouveau, plus cinématique que le fade-up) */
+.reveal-blur {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s ease;
+}
+.reveal-blur.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Stagger : enfants s'affichent avec délai progressif */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 320ms; }
+.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 400ms; }
+.reveal-stagger.is-visible > *:nth-child(7) { transition-delay: 480ms; }
+.reveal-stagger.is-visible > *:nth-child(8) { transition-delay: 560ms; }
+
+/* Word-by-word reveal pour headlines */
+.word-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(60%);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.word-reveal.is-visible .word {
+  opacity: 1;
+  transform: translateY(0);
+}
+.word-reveal.is-visible .word:nth-child(1) { transition-delay: 40ms; }
+.word-reveal.is-visible .word:nth-child(2) { transition-delay: 90ms; }
+.word-reveal.is-visible .word:nth-child(3) { transition-delay: 140ms; }
+.word-reveal.is-visible .word:nth-child(4) { transition-delay: 190ms; }
+.word-reveal.is-visible .word:nth-child(5) { transition-delay: 240ms; }
+.word-reveal.is-visible .word:nth-child(6) { transition-delay: 290ms; }
+.word-reveal.is-visible .word:nth-child(7) { transition-delay: 340ms; }
+.word-reveal.is-visible .word:nth-child(8) { transition-delay: 390ms; }
+.word-reveal.is-visible .word:nth-child(9) { transition-delay: 440ms; }
+.word-reveal.is-visible .word:nth-child(10) { transition-delay: 490ms; }
+.word-reveal.is-visible .word:nth-child(11) { transition-delay: 540ms; }
+.word-reveal.is-visible .word:nth-child(12) { transition-delay: 590ms; }
+.word-reveal.is-visible .word:nth-child(13) { transition-delay: 640ms; }
+.word-reveal.is-visible .word:nth-child(14) { transition-delay: 690ms; }
+.word-reveal.is-visible .word:nth-child(15) { transition-delay: 740ms; }
+
+/* Parallax drift (lié au curseur, appliqué via style inline) */
+.parallax-layer {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Float loop discret pour cartes flottantes du hero */
+@keyframes float-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(0, -8px); }
+}
+.float-drift { animation: float-drift 5.5s ease-in-out infinite; }
+
+@keyframes float-drift-alt {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(3px, -6px); }
+}
+.float-drift-alt { animation: float-drift-alt 6.5s ease-in-out infinite; }
+
+/* Shine sweep sur bouton primaire et cartes de features */
+.shine-sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shine-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.35) 55%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.shine-sweep:hover::after { transform: translateX(120%); }
+
+/* Magnetic lift discret sur carte */
+.lift-card { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease; }
+.lift-card:hover { transform: translateY(-6px); }
+
+/* Carousel snap (mobile) */
+.snap-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 1.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0.5rem 1.5rem 1.5rem;
+}
+.snap-row::-webkit-scrollbar { display: none; }
+.snap-row > * {
+  scroll-snap-align: start;
+  flex: 0 0 82%;
+  max-width: 320px;
+}
+@media (min-width: 480px) {
+  .snap-row > * { flex-basis: 68%; }
+}
+
+/* Dots indicator for carousel */
+.snap-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.snap-dots button {
+  width: 22px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  border: 0;
+  cursor: pointer;
+  transition: background 0.25s ease, width 0.25s ease;
+}
+.snap-dots button.active {
+  background: var(--color-brand);
+  width: 36px;
+}
+
+/* Gradient stroke border pour cartes hero */
+.gradient-ring {
+  position: relative;
+  border-radius: 20px;
+  background: var(--card-bg);
+  z-index: 0;
+}
+.gradient-ring::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,107,44,0.4), rgba(108,92,231,0.2) 45%, rgba(45,212,168,0.35));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Scroll-linked progress line (how it works) */
+.progress-line {
+  position: absolute;
+  top: 2rem;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  background: var(--border-default);
+  overflow: hidden;
+  border-radius: 999px;
+}
+.progress-line .fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-brand-amber));
+  transform-origin: left center;
+  transform: scaleX(var(--progress, 0));
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Typing caret discret */
+@keyframes caret-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0; }
+}
+.caret::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 4px;
+  background: var(--color-brand);
+  vertical-align: -0.1em;
+  animation: caret-blink 1s steps(2) infinite;
+}
+
+/* Image treatment : ring + soft inner gradient */
+.photo-frame {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow-xl);
+}
+.photo-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(15, 15, 20, 0.45));
+  pointer-events: none;
+}
+.photo-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
 /* Page transitions */
 .page-enter-active, .page-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;

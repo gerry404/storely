@@ -1,16 +1,13 @@
 import { ref, onMounted } from 'vue'
 
-// Light-first: default is 'light' unless user picked dark or has OS dark preference
+// Light-first, always. We ignore OS preference on first visit so the landing
+// stays on its intended palette, and only honor the user's explicit toggle.
 const theme = ref('light')
 
 export function useTheme() {
   const init = () => {
     const saved = localStorage.getItem('storely-theme')
-    if (saved === 'light' || saved === 'dark') {
-      theme.value = saved
-    } else {
-      theme.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
+    theme.value = saved === 'dark' ? 'dark' : 'light'
     applyTheme()
   }
 
