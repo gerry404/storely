@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use App\Services\PlanService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ShopController extends Controller
 {
@@ -32,7 +33,30 @@ class ShopController extends Controller
         // Include plan for frontend feature gating
         $shop->effective_plan = $shop->getEffectivePlan();
 
+        // Never leak the MoMo webhook token on public storefront
+        $shop->makeHidden('momo_webhook_token');
+
         return response()->json($shop);
+    }
+
+    /**
+     * Generate (or regenerate) a MoMo SMS reconciliation webhook token for this shop.
+     */
+    public function regenerateMomoToken(Request $request)
+    {
+        $shop = Shop::where('user_id', $request->user()->id)->firstOrFail();
+
+        // Collision-safe token — unique constraint exists on column
+        do {
+            $token = Str::random(40);
+        } while (Shop::where('momo_webhook_token', $token)->exists());
+
+        $shop->update(['momo_webhook_token' => $token]);
+
+        return response()->json([
+            'momo_webhook_token' => $token,
+            'webhook_url' => url('/api/webhooks/momo-sms/' . $token),
+        ]);
     }
 
     public function update(Request $request)

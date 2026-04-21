@@ -11,6 +11,48 @@ const { user, shop, api, fetchUser } = useAuth()
 const { categoryList } = useCategories()
 const { currentPlan, planLabel, isFree, isPro } = usePlan()
 
+// MoMo reconciliation
+const momoToken = ref('')
+const momoWebhookUrl = ref('')
+const momoLoading = ref(false)
+const momoTokenCopied = ref(false)
+const momoUrlCopied = ref(false)
+const momoRevealed = ref(false)
+const momoHelpOpen = ref(false)
+
+const maskedToken = computed(() => {
+  if (!momoToken.value) return ''
+  return momoToken.value.slice(0, 6) + '•'.repeat(Math.max(0, momoToken.value.length - 10)) + momoToken.value.slice(-4)
+})
+
+async function regenerateMomoToken() {
+  if (momoToken.value && !confirm('Générer un nouveau token invalidera l\'ancien. Continuer ?')) return
+  momoLoading.value = true
+  try {
+    const data = await api('/api/shop/momo-token', { method: 'POST' })
+    momoToken.value = data.momo_webhook_token
+    momoWebhookUrl.value = data.webhook_url
+    momoRevealed.value = true
+    await fetchUser()
+  } catch (e) {
+    errorMessage.value = e.message || 'Erreur lors de la génération du token.'
+  } finally {
+    momoLoading.value = false
+  }
+}
+
+async function copyToken() {
+  try { await navigator.clipboard.writeText(momoToken.value) } catch {}
+  momoTokenCopied.value = true
+  setTimeout(() => { momoTokenCopied.value = false }, 2000)
+}
+
+async function copyWebhookUrl() {
+  try { await navigator.clipboard.writeText(momoWebhookUrl.value) } catch {}
+  momoUrlCopied.value = true
+  setTimeout(() => { momoUrlCopied.value = false }, 2000)
+}
+
 const form = ref({
   name: '',
   slug: '',
@@ -165,6 +207,12 @@ onMounted(() => {
       Object.keys(visibility.value).forEach(k => {
         if (data[k] !== undefined) visibility.value[k] = data[k]
       })
+    }
+
+    // Load existing MoMo webhook token if any
+    if (shop.value.momo_webhook_token) {
+      momoToken.value = shop.value.momo_webhook_token
+      momoWebhookUrl.value = apiUrl(`/api/webhooks/momo-sms/${shop.value.momo_webhook_token}`)
     }
   }
 })
@@ -640,6 +688,100 @@ const visibilityItems = [
       <p v-if="!isPro" class="text-xs mt-3 text-center" style="color: var(--text-faint)">
         <router-link to="/dashboard/upgrade" class="text-brand hover:underline">Comparer les plans</router-link> pour voir toutes les fonctionnalites disponibles
       </p>
+    </div>
+
+    <!-- ══════ RÉCONCILIATION MOBILE MONEY ══════ -->
+    <div class="glass-card rounded-2xl p-5 sm:p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(255,204,0,0.08)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFCC00" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h.01M11 15h2M16 15h.01"/></svg>
+        </div>
+        <div>
+          <h2 class="font-display font-bold text-sm" style="color: var(--text-primary)">Mobile Money — Réconciliation auto</h2>
+          <p class="text-xs" style="color: var(--text-muted)">Confirmez automatiquement les paiements MTN MoMo & Orange Money</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl mb-4" style="background: var(--bg-primary); border: 1px solid var(--border-default)">
+        <p class="text-xs leading-relaxed" style="color: var(--text-secondary)">
+          Chaque commande génère un <strong style="color: var(--text-primary)">code unique</strong> (ex: <span class="font-mono">SLA1B2C3</span>) affiché au client. Quand il vous paie par MoMo en indiquant ce code dans le <em>motif</em>, une app de transfert SMS installée sur votre téléphone envoie le SMS vers votre webhook et la commande passe automatiquement en «&nbsp;payée&nbsp;». Plus besoin de tout vérifier manuellement.
+        </p>
+      </div>
+
+      <!-- No token yet -->
+      <div v-if="!momoToken">
+        <button
+          @click="regenerateMomoToken"
+          :disabled="momoLoading"
+          class="w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-brand to-brand-amber text-white hover:shadow-lg hover:shadow-brand/20 disabled:opacity-60"
+        >
+          <svg v-if="momoLoading" class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2a10 10 0 019.95 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          {{ momoLoading ? 'Génération...' : 'Activer la réconciliation' }}
+        </button>
+      </div>
+
+      <!-- Token present -->
+      <div v-else class="space-y-3">
+        <!-- Token field -->
+        <div>
+          <label class="set-label">Token secret</label>
+          <div class="flex items-center gap-2">
+            <div class="flex-1 px-3 py-2.5 rounded-xl text-xs font-mono truncate" style="background: var(--bg-primary); border: 1px solid var(--border-default); color: var(--text-primary)">
+              {{ momoRevealed ? momoToken : maskedToken }}
+            </div>
+            <button @click="momoRevealed = !momoRevealed" type="button" class="px-3 py-2.5 rounded-xl text-xs font-medium transition-all" style="background: var(--bg-primary); border: 1px solid var(--border-default); color: var(--text-secondary)">
+              {{ momoRevealed ? 'Cacher' : 'Voir' }}
+            </button>
+            <button @click="copyToken" type="button" class="px-3 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5" :class="momoTokenCopied ? 'bg-mint/10 text-mint border border-mint/20' : 'bg-brand/10 text-brand border border-brand/20 hover:bg-brand/15'">
+              <svg v-if="!momoTokenCopied" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ momoTokenCopied ? 'Copié' : 'Copier' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Webhook URL -->
+        <div>
+          <label class="set-label">URL du webhook (à coller dans l'app SMS forwarder)</label>
+          <div class="flex items-center gap-2">
+            <div class="flex-1 px-3 py-2.5 rounded-xl text-xs font-mono truncate" style="background: var(--bg-primary); border: 1px solid var(--border-default); color: var(--text-primary)">{{ momoWebhookUrl }}</div>
+            <button @click="copyWebhookUrl" type="button" class="px-3 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5" :class="momoUrlCopied ? 'bg-mint/10 text-mint border border-mint/20' : 'bg-brand/10 text-brand border border-brand/20 hover:bg-brand/15'">
+              <svg v-if="!momoUrlCopied" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ momoUrlCopied ? 'Copié' : 'Copier' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button @click="momoHelpOpen = !momoHelpOpen" type="button" class="px-3 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1.5" style="background: var(--bg-primary); border: 1px solid var(--border-default); color: var(--text-secondary)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            {{ momoHelpOpen ? 'Masquer le guide' : 'Guide de configuration' }}
+          </button>
+          <button
+            @click="regenerateMomoToken"
+            :disabled="momoLoading"
+            type="button"
+            class="px-3 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1.5 bg-brand-coral/10 text-brand-coral border border-brand-coral/20 hover:bg-brand-coral/15 disabled:opacity-60"
+          >
+            <svg v-if="momoLoading" class="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2a10 10 0 019.95 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Régénérer
+          </button>
+        </div>
+
+        <!-- Setup guide -->
+        <Transition name="slide">
+          <div v-if="momoHelpOpen" class="mt-3 p-4 rounded-xl text-xs leading-relaxed space-y-2" style="background: var(--bg-primary); border: 1px solid var(--border-default); color: var(--text-secondary)">
+            <p><strong style="color: var(--text-primary)">1.</strong> Installez une app SMS forwarder sur votre téléphone (ex: <em>SMS Forwarder</em>, <em>SMS to URL</em> sur Play Store).</p>
+            <p><strong style="color: var(--text-primary)">2.</strong> Créez une règle pour les SMS reçus de <span class="font-mono">MTN Mobile Money</span> et <span class="font-mono">Orange Money</span>.</p>
+            <p><strong style="color: var(--text-primary)">3.</strong> Configurez le transfert vers l'URL ci-dessus, en méthode <span class="font-mono">POST</span> avec le champ <span class="font-mono">text</span> contenant le contenu du SMS.</p>
+            <p><strong style="color: var(--text-primary)">4.</strong> Testez : passez une commande de test, payez-vous avec le code affiché. Le statut doit passer à «&nbsp;payé&nbsp;» automatiquement.</p>
+            <p class="pt-2 border-t border-white/5" style="color: var(--text-faint)">Vous gardez toujours la possibilité de marquer manuellement une commande comme payée depuis la page Commandes.</p>
+          </div>
+        </Transition>
+      </div>
     </div>
 
     <!-- ══════ COMPTE ══════ -->

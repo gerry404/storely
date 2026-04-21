@@ -12,6 +12,56 @@ const hasMorePages = ref(false)
 const activeFilter = ref('all')
 const updatingStatus = ref(null)
 
+// Mark-as-paid modal
+const payModalOrder = ref(null)
+const payForm = ref({ source: 'momo_mtn', reference: '' })
+const payingNow = ref(false)
+const payError = ref('')
+
+const paymentSources = [
+  { key: 'momo_mtn', label: 'MTN Mobile Money' },
+  { key: 'momo_orange', label: 'Orange Money' },
+  { key: 'cash', label: 'Espèces' },
+  { key: 'bank', label: 'Virement bancaire' },
+  { key: 'other', label: 'Autre' },
+]
+
+function openPayModal(order) {
+  payModalOrder.value = order
+  payForm.value = { source: 'momo_mtn', reference: '' }
+  payError.value = ''
+}
+
+function closePayModal() {
+  payModalOrder.value = null
+}
+
+async function confirmMarkPaid() {
+  if (!payModalOrder.value) return
+  payingNow.value = true
+  payError.value = ''
+  try {
+    const updated = await api(`/api/orders/${payModalOrder.value.id}/mark-paid`, {
+      method: 'POST',
+      body: JSON.stringify({
+        source: payForm.value.source,
+        reference: payForm.value.reference || undefined,
+      }),
+    })
+    const idx = orders.value.findIndex(o => o.id === payModalOrder.value.id)
+    if (idx !== -1) orders.value[idx] = { ...orders.value[idx], ...updated }
+    closePayModal()
+  } catch (e) {
+    payError.value = e.message || 'Erreur lors du marquage.'
+  } finally {
+    payingNow.value = false
+  }
+}
+
+async function copyCode(code) {
+  try { await navigator.clipboard.writeText(code) } catch {}
+}
+
 const filters = [
   { key: 'all', label: 'Toutes' },
   { key: 'new', label: 'Nouvelles' },
@@ -250,6 +300,17 @@ onMounted(async () => {
               <p class="font-display font-semibold text-white text-sm">{{ order.customer_name }}</p>
               <p class="text-xs text-white/40 mt-0.5">{{ order.customer_phone }}</p>
               <p class="text-xs text-white/30 mt-1 truncate">{{ getItemNames(order) }}</p>
+              <!-- Payment code (unpaid physical orders with a code) -->
+              <div v-if="order.payment_code && order.payment_status !== 'paid'" class="mt-2 flex items-center gap-2">
+                <span class="text-[10px] uppercase tracking-wider text-white/35">Code MoMo</span>
+                <button
+                  @click="copyCode(order.payment_code)"
+                  class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-white/5 text-white/80 hover:bg-white/10 transition border border-dashed border-white/15"
+                  title="Cliquer pour copier"
+                >
+                  {{ order.payment_code }}
+                </button>
+              </div>
             </div>
 
             <!-- Amount, date & actions -->
@@ -259,6 +320,14 @@ onMounted(async () => {
                 <span v-if="order.payment_status === 'paid' && order.seller_amount" class="text-[10px] text-emerald-400/60 block">Net: {{ formatCurrency(order.seller_amount) }}</span>
                 <span class="text-[11px] text-white/30">{{ formatDate(order.created_at) }}</span>
               </div>
+              <button
+                v-if="order.payment_status !== 'paid'"
+                @click="openPayModal(order)"
+                class="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition border border-emerald-500/20 shrink-0 flex items-center gap-1.5"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Marquer payé
+              </button>
               <a
                 :href="whatsappUrl(order.customer_phone)"
                 target="_blank"
@@ -275,6 +344,79 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <!-- Mark-as-paid Modal -->
+    <teleport to="body">
+      <div v-if="payModalOrder" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4" @click.self="closePayModal">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closePayModal"></div>
+        <div class="relative w-full max-w-md rounded-t-2xl md:rounded-2xl overflow-hidden" style="background: #141420; border: 1px solid rgba(255,255,255,0.08)">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="font-display font-bold text-lg text-white">Confirmer le paiement</h3>
+              <button @click="closePayModal" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            <div class="rounded-xl p-3 mb-5" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06)">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs text-white/40">Commande</p>
+                  <p class="font-mono text-sm text-white font-semibold">#ST-{{ payModalOrder.id }} · {{ payModalOrder.customer_name }}</p>
+                </div>
+                <p class="font-display font-bold text-lg text-white">{{ formatCurrency(payModalOrder.total) }}</p>
+              </div>
+              <div v-if="payModalOrder.payment_code" class="mt-2 pt-2 border-t border-white/5 flex items-center gap-2">
+                <span class="text-[10px] uppercase tracking-wider text-white/35">Code</span>
+                <span class="font-mono text-xs font-bold text-white/70">{{ payModalOrder.payment_code }}</span>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">Source du paiement</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  v-for="s in paymentSources"
+                  :key="s.key"
+                  type="button"
+                  @click="payForm.source = s.key"
+                  :class="[
+                    'p-2.5 rounded-xl text-xs font-semibold text-left transition border',
+                    payForm.source === s.key
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                      : 'bg-white/[0.03] text-white/60 border-white/10 hover:bg-white/5'
+                  ]"
+                >{{ s.label }}</button>
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">Référence / transaction <span class="text-white/20 normal-case">(optionnel)</span></label>
+              <input
+                v-model="payForm.reference"
+                type="text"
+                placeholder="Ex: MP2404.2100.A1234"
+                class="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/20"
+              />
+            </div>
+
+            <div v-if="payError" class="mb-3 p-3 rounded-lg text-xs font-medium" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.15); color: #EF4444">{{ payError }}</div>
+
+            <div class="flex gap-2">
+              <button @click="closePayModal" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white/5 text-white/70 hover:bg-white/10 transition">Annuler</button>
+              <button
+                @click="confirmMarkPaid"
+                :disabled="payingNow"
+                class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 text-white hover:bg-emerald-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <svg v-if="payingNow" class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2a10 10 0 019.95 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                {{ payingNow ? 'Enregistrement...' : 'Confirmer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </teleport>
 
     <!-- Load more -->
     <div v-if="!loading && hasMorePages" class="mt-6 text-center">

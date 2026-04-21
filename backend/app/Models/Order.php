@@ -13,6 +13,7 @@ class Order extends Model
         'customer_email', 'quantity', 'total', 'status', 'note',
         'is_preorder', 'deposit_amount',
         'payment_status', 'payment_method', 'payment_reference',
+        'payment_code', 'payment_source',
         'commission_amount', 'seller_amount', 'paid_at',
         'delivery_zone_id', 'delivery_fee', 'delivery_address',
     ];

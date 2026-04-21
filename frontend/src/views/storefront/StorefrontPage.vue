@@ -217,6 +217,17 @@ const orderSuccess = ref(false)
 const orderError = ref('')
 const orderPaymentMethod = ref('flutterwave')
 const orderDeliveryZoneId = ref(null)
+const lastOrder = ref(null)
+const codeCopied = ref(false)
+
+async function copyPaymentCode() {
+  if (!lastOrder.value?.payment_code) return
+  try {
+    await navigator.clipboard.writeText(lastOrder.value.payment_code)
+    codeCopied.value = true
+    setTimeout(() => { codeCopied.value = false }, 2000)
+  } catch {}
+}
 
 const deliveryZones = computed(() => {
   const list = store.value?.delivery_zones || []
@@ -241,6 +252,7 @@ const openOrder = (product) => {
   orderError.value = ''
   orderSuccess.value = false
   orderPaymentMethod.value = 'flutterwave'
+  lastOrder.value = null
   // Pre-select default zone if any
   const defaultZone = deliveryZones.value.find(z => z.is_default) || deliveryZones.value[0]
   orderDeliveryZoneId.value = defaultZone ? defaultZone.id : null
@@ -270,6 +282,8 @@ const submitOrder = async () => {
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || 'Erreur')
+
+    lastOrder.value = data.order || null
 
     if (orderPaymentMethod.value === 'flutterwave' && data.order) {
       showOrderForm.value = false
@@ -919,7 +933,24 @@ watch(selectedProduct, () => { selectedImageIndex.value = 0 })
             </div>
             <h3 class="text-xl font-display font-bold text-white mb-2">Commande confirmée !</h3>
             <p class="text-sm text-white/50 mb-1">Votre commande a été envoyée à <strong class="text-white">{{ store.name }}</strong>.</p>
-            <p class="text-sm text-white/50 mb-6">On vous contactera au <strong class="text-white">{{ orderForm.phone }}</strong>.</p>
+            <p class="text-sm text-white/50 mb-4">On vous contactera au <strong class="text-white">{{ orderForm.phone }}</strong>.</p>
+
+            <!-- Payment reconciliation code for MoMo / cash orders -->
+            <div v-if="lastOrder?.payment_code && lastOrder?.payment_status !== 'paid'" class="text-left rounded-2xl p-4 mb-5" style="background: rgba(255,107,44,0.08); border: 1px solid rgba(255,107,44,0.15)">
+              <p class="text-[11px] font-bold uppercase tracking-wider mb-2" :style="{ color: accent }">Votre code de paiement</p>
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex-1 font-mono font-bold text-lg tracking-wider text-white px-3 py-2.5 rounded-lg" style="background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.15)">
+                  {{ lastOrder.payment_code }}
+                </div>
+                <button @click="copyPaymentCode" type="button" class="px-3 py-2.5 rounded-lg text-xs font-semibold transition" :style="{ background: codeCopied ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)', color: codeCopied ? '#22C55E' : '#fff' }">
+                  {{ codeCopied ? 'Copié !' : 'Copier' }}
+                </button>
+              </div>
+              <p class="text-xs text-white/60 leading-relaxed">
+                Si vous payez par <strong class="text-white">Mobile Money</strong>, collez ce code dans le champ <em>"motif"</em> du transfert. Le vendeur confirmera automatiquement votre commande.
+              </p>
+            </div>
+
             <button @click="showOrderForm = false" class="sf-btn-accent px-8">Fermer</button>
           </div>
           <!-- Form -->

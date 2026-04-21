@@ -57,6 +57,9 @@ Route::post('/payments/verify', [PaymentController::class, 'verifyPayment']);
 // Flutterwave webhook (no auth, signature verified in controller)
 Route::post('/webhooks/flutterwave', [PaymentController::class, 'webhook']);
 
+// MoMo SMS reconciliation webhook (token-secured, for SMS-forwarder apps)
+Route::post('/webhooks/momo-sms/{token}', [OrderController::class, 'momoSmsWebhook']);
+
 // ─── Authenticated ─────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
@@ -68,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shop/stats', [ShopController::class, 'stats']);
     Route::post('/shop/logo', [ShopController::class, 'uploadLogo']);
     Route::post('/shop/banner', [ShopController::class, 'uploadBanner']);
+    Route::post('/shop/momo-token', [ShopController::class, 'regenerateMomoToken']);
 
     // Promotions
     Route::get('/promotions', [PromotionController::class, 'index']);
@@ -86,6 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Orders
     Route::get('/orders', [OrderController::class, 'index']);
     Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::post('/orders/{order}/mark-paid', [OrderController::class, 'markPaid']);
 
     // Delivery zones
     Route::get('/delivery-zones', [DeliveryZoneController::class, 'index']);

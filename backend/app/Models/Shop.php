@@ -16,6 +16,7 @@ class Shop extends Model
         'open_hours', 'logo', 'banner', 'verified', 'active',
         'plan', 'customization', 'featured_products',
         'country', 'currency', 'featured_at', 'boost_expires_at',
+        'momo_webhook_token',
     ];
 
     protected $casts = [
