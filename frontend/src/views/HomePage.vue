@@ -19,29 +19,29 @@ const { isAuthenticated } = useAuth()
 const features = [
   {
     icon: DevicePhoneMobileIcon,
-    title: 'WhatsApp & SMS',
-    desc: 'Recevez chaque réservation en temps réel sur WhatsApp ou par SMS. Pas besoin de rester collé à votre téléphone.',
+    title: 'Commandes sur WhatsApp',
+    desc: 'Chaque commande arrive en temps réel sur votre téléphone. Paiement Mobile Money confirmé automatiquement, plus besoin de capture d\'écran.',
     gradient: 'from-emerald-500 to-teal-400',
     bg: 'bg-emerald-500/10',
   },
   {
     icon: BoltIcon,
-    title: 'Configuration en 5 min',
-    desc: "Créez votre compte, configurez vos services et partagez votre lien. C'est tout. Aucune compétence technique requise.",
+    title: 'Boutique prête en 9 min',
+    desc: "Créez votre compte, ajoutez vos produits, collez votre lien dans votre bio. L'IA rédige les descriptions, vous n'avez qu'à vendre.",
     gradient: 'from-amber-500 to-orange-400',
     bg: 'bg-amber-500/10',
   },
   {
     icon: ChartBarIcon,
     title: 'Statistiques claires',
-    desc: 'Visualisez vos revenus, le taux de remplissage et les services les plus demandés depuis votre tableau de bord.',
+    desc: 'Revenus, produits best-sellers, paniers abandonnés, clients fidèles. Tout ce qui compte, sans tableaux illisibles.',
     gradient: 'from-blue-500 to-cyan-400',
     bg: 'bg-blue-500/10',
   },
   {
     icon: GlobeAltIcon,
-    title: 'Pensé pour tous',
-    desc: 'Interface en français et anglais, connexion lente tolérée, paiements MTN/Orange Money. Storely comprend votre réalité.',
+    title: 'Pensé pour l\'Afrique',
+    desc: 'Mobile Money MTN et Orange, zones de livraison, français local, connexion lente tolérée. Storely comprend votre réalité.',
     gradient: 'from-violet-500 to-purple-400',
     bg: 'bg-violet-500/10',
   },
@@ -61,53 +61,53 @@ const plans = computed(() => [
     cta: 'Commencer gratuitement',
     ctaClass: 'block w-full py-3 rounded-xl text-sm font-bold text-center border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all',
     features: [
-      'Jusqu\'à 30 réservations/mois',
-      'Page de réservation publique',
-      'Notifications WhatsApp (wa.me)',
+      'Jusqu\'à 10 produits en ligne',
+      'Lien boutique storely.app/votre-nom',
+      'Notifications WhatsApp des commandes',
       'Tableau de bord basique',
-      'Export CSV',
+      'Support communautaire',
     ],
     limitations: [
-      'Pas de rappels automatiques',
-      'Statistiques limitées',
+      'Pas de Mobile Money intégré',
+      'Pas de domaine personnalisé',
+    ],
+  },
+  {
+    name: 'Starter',
+    priceMonthly: '5 000',
+    priceAnnual: '3 500',
+    savingsAnnual: '18 000',
+    period: 'F CFA/mois',
+    desc: 'Choisi par 82% de nos commerçants',
+    color: 'border-primary-500 ring-2 ring-primary-500/20',
+    popular: true,
+    cta: 'Essayer 14 jours gratuits',
+    ctaClass: 'btn-primary block w-full py-3 text-sm text-center',
+    features: [
+      'Produits illimités',
+      'Paiement Mobile Money (MTN, Orange)',
+      'IA qui rédige les fiches produit',
+      'Relance panier abandonné',
+      'Statistiques avancées',
+      'Support prioritaire WhatsApp',
     ],
   },
   {
     name: 'Pro',
-    priceMonthly: '2 900',
-    priceAnnual: '2 075',
-    savingsAnnual: '9 900',
+    priceMonthly: '15 000',
+    priceAnnual: '10 500',
+    savingsAnnual: '54 000',
     period: 'F CFA/mois',
-    desc: 'Choisi par 82% de nos clients',
-    color: 'border-primary-500 ring-2 ring-primary-500/20',
-    popular: true,
-    cta: 'Essai gratuit de 14 jours',
-    ctaClass: 'btn-primary block w-full py-3 text-sm text-center',
-    features: [
-      'Réservations illimitées',
-      'Rappels email automatiques',
-      'URL personnalisée',
-      'Statistiques avancées & revenus',
-      'Export CSV illimité',
-      'Support prioritaire',
-    ],
-  },
-  {
-    name: 'Business',
-    priceMonthly: '7 900',
-    priceAnnual: '5 825',
-    savingsAnnual: '24 900',
-    period: 'F CFA/mois',
-    desc: 'Pour les équipes & multi-sites',
+    desc: 'Pour les boutiques qui scalent',
     color: 'border-gray-200',
-    cta: 'Essai gratuit de 14 jours',
+    cta: 'Essayer 14 jours gratuits',
     ctaClass: 'block w-full py-3 rounded-xl text-sm font-bold text-center border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-all',
     features: [
-      'Tout le plan Pro',
-      'Multi-employés (bientôt)',
-      'SMS automatiques',
-      'Tableau de bord multi-sites',
-      'Intégration API personnalisée',
+      'Tout le plan Starter',
+      'Domaine personnalisé (votre.com)',
+      'Zones de livraison illimitées',
+      'Programme de parrainage',
+      'API & intégrations',
       'Gestionnaire de compte dédié',
     ],
   },
@@ -115,41 +115,41 @@ const plans = computed(() => [
 
 const testimonials = [
   {
-    name: 'Marie Nguema',
-    role: 'Coiffeuse, Douala',
-    text: 'Avant Storely, je passais ma journée à répondre aux appels. Maintenant mes clientes réservent seules et je reçois juste une notification WhatsApp. Ma vie a changé !',
-    avatar: 'MN',
+    name: 'Amina Ngonga',
+    role: 'Créatrice mode, Douala',
+    text: 'Avant Storely, je vendais via DM Instagram avec des captures d\'écran de paiement. Mes clientes ouvrent mon lien, payent en MoMo, je reçois une notif. J\'ai multiplié mes ventes par trois.',
+    avatar: 'AN',
     color: 'from-pink-500 to-rose-500',
     rating: 5,
   },
   {
-    name: 'Jean-Paul Mbarga',
-    role: 'Médecin généraliste, Yaoundé',
-    text: "Mon cabinet a réduit les double-réservations à zéro. La page de réservation est simple, mes patients l'utilisent même sans smartphone performant.",
+    name: 'Joseph Mbarga',
+    role: 'Gérant tech, Yaoundé',
+    text: "Tout est au même endroit. Commandes, paiements, livraisons, chat client. J'ai arrêté de jongler entre WhatsApp, Excel et mes comptes MoMo. Je vends, je ne fais plus d'administration.",
     avatar: 'JM',
     color: 'from-blue-500 to-cyan-500',
     rating: 5,
   },
   {
-    name: 'Aicha Diallo',
-    role: 'Esthéticienne, Abidjan',
-    text: "J'ai commencé avec le plan gratuit. En deux semaines j'étais passée au plan Pro tellement ça marchait. Mes réservations ont augmenté de 60%.",
-    avatar: 'AD',
+    name: 'Claire Tchoumi',
+    role: 'Fondatrice cosmétique, Abidjan',
+    text: "J'ai commencé en gratuit. Deux semaines après je suis passée au Starter. La relance panier abandonné m'a rapporté 280 000 FCFA le premier mois, sans lever le petit doigt.",
+    avatar: 'CT',
     color: 'from-violet-500 to-purple-500',
     rating: 5,
   },
   {
     name: 'Samuel Ekotto',
-    role: 'Barbier, Douala',
-    text: "Mes clients me trouvent directement sur Google grâce à mon lien Storely. Le dimanche je dors tranquille, les réservations du lundi sont déjà calées.",
+    role: 'Artisan maroquinier, Douala',
+    text: "Mes clients me trouvent sur Instagram, cliquent mon lien Storely et commandent. Le dimanche je dors tranquille, les commandes du lundi sont déjà payées.",
     avatar: 'SE',
     color: 'from-emerald-500 to-teal-500',
     rating: 5,
   },
   {
     name: 'Fatou Sow',
-    role: 'Spa & Massage, Dakar',
-    text: "L'interface est tellement simple que même ma mère peut réserver. Et les rappels WhatsApp ont réduit mes no-shows de 80%. Je recommande à tous.",
+    role: 'Boutique accessoires, Dakar',
+    text: "L'IA qui rédige mes fiches produit me fait gagner des heures. Je photographie, l'IA écrit titre et description, je publie. Ce qui me prenait 20 minutes prend 30 secondes.",
     avatar: 'FS',
     color: 'from-amber-500 to-orange-500',
     rating: 5,
@@ -191,10 +191,10 @@ const mockupTypedPhone = ref('')
 const mockupShowCursor = ref(true)
 
 const services = [
-  { name: 'Coiffure naturelle', duration: '1h', price: '5 000 F', color: '#8b5cf6' },
-  { name: 'Tresses africaines', duration: '2h30', price: '12 000 F', color: '#ec4899' },
-  { name: 'Soin capillaire', duration: '45min', price: '3 500 F', color: '#06b6d4' },
-  { name: 'Maquillage complet', duration: '1h15', price: '8 000 F', color: '#f59e0b' },
+  { name: 'Ensemble wax femme', duration: 'Mode', price: '18 500 F', color: '#FF6B2C' },
+  { name: 'Sac cuir fait main', duration: 'Accessoires', price: '25 000 F', color: '#6C5CE7' },
+  { name: 'Bijoux perlés artisan', duration: 'Bijoux', price: '8 500 F', color: '#2DD4A8' },
+  { name: 'Parfum naturel 50ml', duration: 'Cosmétique', price: '12 000 F', color: '#FFAA33' },
 ]
 
 const calendarDays = [
@@ -407,7 +407,7 @@ onUnmounted(() => {
           'text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 leading-[1.05] tracking-tight mb-7 transition-all duration-700 delay-150',
           heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         ]">
-          Vos réservations,<br />
+          Votre boutique en ligne,<br />
           <span class="hero-gradient-text">en pilote automatique</span>
         </h1>
 
@@ -416,8 +416,8 @@ onUnmounted(() => {
           'text-lg sm:text-xl text-gray-500 leading-relaxed max-w-2xl mx-auto mb-10 transition-all duration-700 delay-300',
           heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         ]">
-          Créez votre page de réservation en 5 minutes. Vos clients réservent en ligne,
-          vous recevez une notification WhatsApp. <strong class="text-gray-700 font-semibold">Zéro appel manqué.</strong>
+          Créez votre boutique en 9 minutes. Vos clients commandent via un lien,
+          paient en Mobile Money, vous recevez une notification WhatsApp. <strong class="text-gray-700 font-semibold">Zéro capture d'écran.</strong>
         </p>
 
         <!-- CTA buttons -->
@@ -444,7 +444,7 @@ onUnmounted(() => {
           <div class="flex -space-x-2">
             <div v-for="(c, i) in ['from-pink-500 to-rose-500', 'from-blue-500 to-cyan-500', 'from-violet-500 to-purple-500', 'from-emerald-500 to-teal-500']" :key="i"
               :class="['w-8 h-8 rounded-full bg-gradient-to-br border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm', c]">
-              {{ ['MN', 'JM', 'AD', 'SE'][i] }}
+              {{ ['AN', 'JM', 'CT', 'SE'][i] }}
             </div>
           </div>
           <div class="flex items-center gap-1">
@@ -471,19 +471,19 @@ onUnmounted(() => {
             </div>
             <div class="flex-1 bg-gray-700 rounded-lg px-3 py-1 text-xs text-gray-300 text-center max-w-xs mx-auto flex items-center justify-center gap-1.5">
               <svg class="w-3 h-3 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-              storely.app/salon-elegance-douala
+              storely.app/elegance-douala
             </div>
           </div>
 
           <!-- Browser content -->
           <div class="bg-gray-50 min-h-[440px] lg:min-h-[540px] xl:min-h-[620px] overflow-hidden">
             <!-- Mini business header -->
-            <div class="bg-gradient-to-r from-violet-600 to-primary-500 px-6 py-4 text-white text-center">
+            <div class="bg-gradient-to-r from-primary-600 to-primary-400 px-6 py-4 text-white text-center">
               <div class="w-11 h-11 rounded-full bg-white/20 border-2 border-white/30 mx-auto mb-1.5 flex items-center justify-center">
-                <span class="text-base font-extrabold">S</span>
+                <span class="text-base font-extrabold">E</span>
               </div>
-              <h3 class="font-extrabold text-sm">Salon Élégance Douala</h3>
-              <p class="text-white/60 text-[11px] mt-0.5">Salon de coiffure · Douala, Cameroun</p>
+              <h3 class="font-extrabold text-sm">Élégance Douala</h3>
+              <p class="text-white/60 text-[11px] mt-0.5">Mode & accessoires · Douala, Cameroun</p>
             </div>
 
             <!-- Step indicators (animated) -->
@@ -503,7 +503,7 @@ onUnmounted(() => {
             <!-- ── STEP 1: Services ── -->
             <Transition name="mockup-slide" mode="out-in">
               <div v-if="mockupStep === 1" key="ms1" class="px-5 pb-5">
-                <p class="text-[11px] font-extrabold text-gray-800 mb-2">Quel service souhaitez-vous réserver ?</p>
+                <p class="text-[11px] font-extrabold text-gray-800 mb-2">Quel produit souhaitez-vous commander ?</p>
                 <div class="space-y-2">
                   <div v-for="svc in services" :key="svc.name"
                     :class="[
@@ -528,13 +528,13 @@ onUnmounted(() => {
 
               <!-- ── STEP 2: Calendar ── -->
               <div v-else-if="mockupStep === 2" key="ms2" class="px-5 pb-5">
-                <p class="text-[11px] font-extrabold text-gray-800 mb-2">Choisissez une date</p>
-                <!-- Selected service pill -->
-                <div class="flex items-center gap-2 p-2 rounded-lg mb-3" style="background-color: #ec489915">
-                  <div class="w-7 h-7 rounded-lg bg-pink-500 flex items-center justify-center text-white text-[10px]">✦</div>
+                <p class="text-[11px] font-extrabold text-gray-800 mb-2">Quelle date de livraison ?</p>
+                <!-- Selected product pill -->
+                <div class="flex items-center gap-2 p-2 rounded-lg mb-3" style="background-color: #6C5CE715">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px]" style="background-color: #6C5CE7">✦</div>
                   <div>
-                    <p class="text-[10px] font-bold text-gray-900">Tresses africaines</p>
-                    <p class="text-[9px] text-gray-400">2h30 · 12 000 F</p>
+                    <p class="text-[10px] font-bold text-gray-900">Sac cuir fait main</p>
+                    <p class="text-[9px] text-gray-400">Accessoires · 25 000 F</p>
                   </div>
                 </div>
                 <!-- Mini calendar -->
@@ -563,7 +563,7 @@ onUnmounted(() => {
 
               <!-- ── STEP 3: Time slots ── -->
               <div v-else-if="mockupStep === 3" key="ms3" class="px-5 pb-5">
-                <p class="text-[11px] font-extrabold text-gray-800 mb-1">Choisissez un horaire</p>
+                <p class="text-[11px] font-extrabold text-gray-800 mb-1">Créneau de livraison</p>
                 <p class="text-[9px] text-gray-400 mb-3 flex items-center gap-1">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   Samedi 28 mars 2026
@@ -585,20 +585,20 @@ onUnmounted(() => {
                 <!-- Mini summary -->
                 <div class="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100 mb-3 space-y-1">
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Service</span>
-                    <span class="font-semibold text-gray-700">Tresses africaines</span>
+                    <span class="text-gray-400">Produit</span>
+                    <span class="font-semibold text-gray-700">Sac cuir fait main</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Date</span>
+                    <span class="text-gray-400">Livraison</span>
                     <span class="font-semibold text-gray-700">Sam. 28 mars</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Heure</span>
+                    <span class="text-gray-400">Créneau</span>
                     <span class="font-semibold text-gray-700">09:30</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Prix</span>
-                    <span class="font-semibold text-pink-500">12 000 F CFA</span>
+                    <span class="text-gray-400">Total</span>
+                    <span class="font-semibold" style="color: #FF6B2C">25 000 F CFA</span>
                   </div>
                 </div>
                 <!-- Form fields with typing animation -->
@@ -621,7 +621,7 @@ onUnmounted(() => {
                   </div>
                   <button class="w-full py-2 rounded-lg text-white font-bold text-[10px] bg-primary-500 mt-1 transition-all"
                     :class="{ 'opacity-50': !mockupTypedPhone, 'hover:opacity-90 shadow-md': mockupTypedPhone }">
-                    Confirmer ma réservation
+                    Payer avec Mobile Money
                   </button>
                 </div>
               </div>
@@ -631,24 +631,24 @@ onUnmounted(() => {
                 <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3 mockup-pop">
                   <svg class="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 </div>
-                <h4 class="text-sm font-extrabold text-gray-900 mb-1">Réservation confirmée !</h4>
-                <p class="text-[10px] text-gray-400 mb-3">Salon Élégance Douala vous confirme sous peu.</p>
+                <h4 class="text-sm font-extrabold text-gray-900 mb-1">Commande confirmée !</h4>
+                <p class="text-[10px] text-gray-400 mb-3">Paiement Mobile Money reçu. La boutique prépare votre colis.</p>
                 <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 text-left space-y-1.5 mb-3">
                   <div class="flex justify-between text-[9px]">
                     <span class="text-gray-400">Référence</span>
-                    <span class="font-mono font-bold text-gray-900">RSV-2026-4F8A</span>
+                    <span class="font-mono font-bold text-gray-900">ORD-2026-4F8A</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Service</span>
-                    <span class="font-semibold text-gray-700">Tresses africaines</span>
+                    <span class="text-gray-400">Produit</span>
+                    <span class="font-semibold text-gray-700">Sac cuir fait main</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Date</span>
+                    <span class="text-gray-400">Livraison</span>
                     <span class="font-semibold text-gray-700">Sam. 28 mars 2026</span>
                   </div>
                   <div class="flex justify-between text-[9px]">
-                    <span class="text-gray-400">Heure</span>
-                    <span class="font-semibold text-gray-700">09:30</span>
+                    <span class="text-gray-400">Paiement</span>
+                    <span class="font-semibold text-emerald-600">MoMo · Validé</span>
                   </div>
                 </div>
                 <div class="inline-flex items-center gap-1.5 py-1.5 px-4 bg-green-500 text-white text-[10px] font-semibold rounded-lg">
@@ -673,7 +673,7 @@ onUnmounted(() => {
             Tout ce dont vous avez besoin.
             <br /><span class="text-gradient">Rien de superflu.</span>
           </h2>
-          <p class="text-lg text-gray-500 max-w-xl mx-auto">Des outils puissants et simples, pensés pour votre quotidien de commerçant.</p>
+          <p class="text-lg text-gray-500 max-w-xl mx-auto">Des outils simples et puissants, pensés pour votre quotidien de commerçant africain.</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -722,20 +722,20 @@ onUnmounted(() => {
           <div class="text-center mb-20">
             <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-5">
               Opérationnel en
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-violet-400">3 étapes</span>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-amber-400">3 étapes</span>
             </h2>
-            <p class="text-lg text-gray-400 max-w-lg mx-auto">Pas de formation, pas de consultant. Juste vous et 5 minutes.</p>
+            <p class="text-lg text-gray-400 max-w-lg mx-auto">Pas de formation, pas de consultant. Juste vous, une photo et 9 minutes.</p>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
             <div v-for="(s, i) in [
-              { n: '01', title: 'Créez votre compte', desc: 'Inscrivez-vous en 5 minutes. Ajoutez le nom de votre commerce, vos services et vos horaires d\'ouverture.', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
-              { n: '02', title: 'Partagez votre lien', desc: 'Vous recevez une URL unique (ex: storely.app/mon-salon). Partagez-la sur WhatsApp, Instagram ou Facebook.', icon: 'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244' },
-              { n: '03', title: 'Recevez des réservations', desc: 'Recevez les réservations en temps réel. Confirmez, annulez ou reprogrammez en un clic depuis votre téléphone.', icon: 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0' },
+              { n: '01', title: 'Créez votre boutique', desc: 'Inscrivez-vous en 5 minutes. Nom de boutique, logo, premiers produits. L\'IA rédige les descriptions à partir d\'une photo.', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
+              { n: '02', title: 'Partagez votre lien', desc: 'Une URL unique (ex: storely.app/ma-boutique). Collez-la dans vos bios Instagram, TikTok, WhatsApp. Une seule vitrine, toutes les plateformes.', icon: 'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244' },
+              { n: '03', title: 'Recevez vos ventes', desc: 'Vos clients commandent, paient en Mobile Money, vous êtes notifié sur WhatsApp. Vous préparez, vous livrez, c\'est vendu.', icon: 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0' },
             ]" :key="i"
               class="group relative bg-white/[0.04] border border-white/[0.08] rounded-2xl p-8 hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-500">
               <!-- Icon -->
-              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center mb-5 group-hover:from-primary-500/30 group-hover:to-violet-500/30 transition-all duration-500">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500/20 to-amber-500/20 border border-white/10 flex items-center justify-center mb-5 group-hover:from-primary-500/30 group-hover:to-amber-500/30 transition-all duration-500">
                 <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="s.icon"/></svg>
               </div>
               <!-- Step number -->
@@ -763,7 +763,7 @@ onUnmounted(() => {
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-14">
           <h2 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Des tarifs simples, sans surprises</h2>
-          <p class="text-lg text-gray-500 mb-10">Paiement par mobile money (MTN, Orange, Wave) ou carte bancaire.</p>
+          <p class="text-lg text-gray-500 mb-10">Zéro commission sur vos ventes. Payable par Mobile Money ou carte bancaire.</p>
 
           <!-- Billing toggle -->
           <div class="inline-flex items-center bg-gray-100 rounded-full p-1 gap-0.5">
@@ -793,7 +793,7 @@ onUnmounted(() => {
           >
             <!-- Popular badge -->
             <div v-if="plan.popular"
-              class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary-600 to-violet-600 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg">
+              class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary-500 to-primary-700 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg">
               Le plus populaire
             </div>
 
@@ -938,11 +938,11 @@ onUnmounted(() => {
         </div>
 
         <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-          Prêt à passer au
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-violet-400 to-primary-400">niveau supérieur</span> ?
+          Votre première vente,
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-amber-400 to-primary-400">ce soir</span> ?
         </h2>
         <p class="text-gray-400 text-lg sm:text-xl mb-12 max-w-xl mx-auto leading-relaxed">
-          Rejoignez des centaines de commerçants qui ont déjà automatisé leurs réservations et augmenté leur chiffre d'affaires.
+          Rejoignez des centaines de commerçants africains qui encaissent chaque jour avec Storely. Mobile Money, WhatsApp, livraison — tout est inclus.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -979,7 +979,7 @@ onUnmounted(() => {
               <img src="/logo.png" alt="Storely" class="w-8 h-8" />
               <span class="font-display font-extrabold text-white text-lg">Storely</span>
             </div>
-            <p class="text-sm leading-relaxed mb-6">La plateforme de réservation en ligne pensée pour les commerçants ambitieux.</p>
+            <p class="text-sm leading-relaxed mb-6">La plateforme e-commerce pensée pour les commerçants africains. Boutique, paiement Mobile Money et livraison dans une seule app.</p>
             <!-- Social links -->
             <div class="flex items-center gap-3">
               <a href="#" class="w-9 h-9 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors" aria-label="Facebook">
@@ -1004,8 +1004,8 @@ onUnmounted(() => {
               <li><RouterLink to="/register" class="text-sm hover:text-white transition-colors">Créer un compte</RouterLink></li>
               <li><a href="#features" class="text-sm hover:text-white transition-colors">Fonctionnalités</a></li>
               <li><a href="#pricing" class="text-sm hover:text-white transition-colors">Tarifs</a></li>
-              <li><RouterLink to="/track" class="text-sm hover:text-white transition-colors">Suivre une réservation</RouterLink></li>
-              <li><RouterLink to="/api-docs" class="text-sm hover:text-white transition-colors">API</RouterLink></li>
+              <li><RouterLink to="/marketplace" class="text-sm hover:text-white transition-colors">Marketplace</RouterLink></li>
+              <li><RouterLink to="/examples" class="text-sm hover:text-white transition-colors">Exemples de boutiques</RouterLink></li>
             </ul>
           </div>
 
@@ -1014,8 +1014,8 @@ onUnmounted(() => {
             <h4 class="font-bold text-white text-sm mb-4">Ressources</h4>
             <ul class="space-y-2.5">
               <li><RouterLink to="/help" class="text-sm hover:text-white transition-colors">Centre d'aide</RouterLink></li>
-              <li><RouterLink to="/guide" class="text-sm hover:text-white transition-colors">Guide de démarrage</RouterLink></li>
-              <li><RouterLink to="/blog" class="text-sm hover:text-white transition-colors">Blog</RouterLink></li>
+              <li><RouterLink to="/contact" class="text-sm hover:text-white transition-colors">Contact</RouterLink></li>
+              <li><a href="#pricing" class="text-sm hover:text-white transition-colors">Tarifs détaillés</a></li>
             </ul>
           </div>
 
@@ -1023,8 +1023,8 @@ onUnmounted(() => {
           <div>
             <h4 class="font-bold text-white text-sm mb-4">Entreprise</h4>
             <ul class="space-y-2.5">
-              <li><RouterLink to="/about" class="text-sm hover:text-white transition-colors">À propos</RouterLink></li>
-              <li><RouterLink to="/careers" class="text-sm hover:text-white transition-colors">Carrières</RouterLink></li>
+              <li><RouterLink to="/terms" class="text-sm hover:text-white transition-colors">Conditions</RouterLink></li>
+              <li><RouterLink to="/privacy" class="text-sm hover:text-white transition-colors">Confidentialité</RouterLink></li>
               <li><RouterLink to="/contact" class="text-sm hover:text-white transition-colors">Contact</RouterLink></li>
             </ul>
           </div>
@@ -1074,9 +1074,9 @@ onUnmounted(() => {
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* Hero gradient text */
+/* Hero gradient text (Storely orange) */
 .hero-gradient-text {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 25%, #a855f7 50%, #7e22ce 75%, #9333ea 100%);
+  background: linear-gradient(135deg, #FF6B2C 0%, #E55A1B 25%, #FF8244 50%, #FFAA33 75%, #FF6B2C 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

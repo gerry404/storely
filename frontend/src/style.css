@@ -33,18 +33,18 @@
   --color-sky: #38BDF8;
   --color-sunshine: #FFC93C;
 
-  /* Primary scale (purple) — for landing page */
-  --color-primary-50:  #faf5ff;
-  --color-primary-100: #f3e8ff;
-  --color-primary-200: #e9d5ff;
-  --color-primary-300: #d8b4fe;
-  --color-primary-400: #c084fc;
-  --color-primary-500: #a855f7;
-  --color-primary-600: #9333ea;
-  --color-primary-700: #7e22ce;
-  --color-primary-800: #6b21a8;
-  --color-primary-900: #581c87;
-  --color-primary-950: #3b0764;
+  /* Primary scale (Storely orange brand) — for landing page */
+  --color-primary-50:  #FFF4EE;
+  --color-primary-100: #FFE5D3;
+  --color-primary-200: #FFC4A0;
+  --color-primary-300: #FFA06B;
+  --color-primary-400: #FF8244;
+  --color-primary-500: #FF6B2C;
+  --color-primary-600: #E55A1B;
+  --color-primary-700: #BC4511;
+  --color-primary-800: #95370F;
+  --color-primary-900: #7A2E10;
+  --color-primary-950: #3F1305;
 
   --font-display: 'Cabinet Grotesk', 'Satoshi', system-ui, sans-serif;
   --font-body: 'Satoshi', 'Inter', system-ui, sans-serif;

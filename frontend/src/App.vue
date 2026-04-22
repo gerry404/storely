@@ -20,7 +20,8 @@ watch(route, (r) => {
   const isProductPage = r.name === 'product-page'
   const isPaymentCallback = r.name === 'payment-callback'
   const isAuth = r.name === 'login' || r.name === 'register' || r.name === 'google-callback'
-  const hideChrome = isDashboard || isAdmin || isStorefront || isProductPage || isPaymentCallback || isAuth
+  const isHome = r.name === 'home'
+  const hideChrome = isDashboard || isAdmin || isStorefront || isProductPage || isPaymentCallback || isAuth || isHome
   showNavbar.value = !hideChrome
   showFooter.value = !hideChrome
 }, { immediate: true })
